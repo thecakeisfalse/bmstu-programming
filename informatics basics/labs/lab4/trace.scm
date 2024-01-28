@@ -1,0 +1,10 @@
+(define-syntax trace
+  (syntax-rules ()
+    ((trace x)
+     ((lambda ()
+        (write 'x)
+        (display " => ")
+        (define v x)
+        (write v)
+        (newline)
+        v)))))
