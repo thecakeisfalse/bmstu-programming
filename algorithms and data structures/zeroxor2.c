@@ -6,11 +6,11 @@
 
 typedef struct node {
     int k, v;
-    struct node ** next;
+    struct node **next;
 } __attribute__((packed)) node_t;
 
-node_t * create_list(void) {
-    node_t * list = malloc(sizeof(node_t));
+node_t *create_list(void) {
+    node_t *list = malloc(sizeof(node_t));
 
     list->k = INF;
     list->next = calloc(MAX_LEVELS, sizeof(node_t *));
@@ -18,10 +18,10 @@ node_t * create_list(void) {
     return list;
 }
 
-node_t ** skip(node_t * list, int k) {
-    node_t ** p = malloc(MAX_LEVELS * sizeof(node_t *)), *x = list;
+node_t **skip(node_t *list, int k) {
+    node_t **p = malloc(MAX_LEVELS * sizeof(node_t *)), *x = list;
 
-    for (int i = MAX_LEVELS-1; i >= 0; i--) {
+    for (int i = MAX_LEVELS - 1; i >= 0; i--) {
         while (x->next[i] != NULL && x->next[i]->k < k)
             x = x->next[i];
 
@@ -31,10 +31,10 @@ node_t ** skip(node_t * list, int k) {
     return p;
 }
 
-node_t * lookup(node_t * list, int k) {
-    node_t * x = list;
+node_t *lookup(node_t *list, int k) {
+    node_t *x = list;
 
-    for (int i = MAX_LEVELS-1; i >= 0; i--)
+    for (int i = MAX_LEVELS - 1; i >= 0; i--)
         while (x->next[i] != NULL && x->next[i]->k < k)
             x = x->next[i];
 
@@ -43,12 +43,12 @@ node_t * lookup(node_t * list, int k) {
     return (x == NULL || x->k != k ? NULL : x);
 }
 
-node_t * insert(node_t * list, int k, int v) {
-    node_t * x = create_list();
+node_t *insert(node_t *list, int k, int v) {
+    node_t *x = create_list();
     x->k = k;
     x->v = v;
 
-    node_t ** p = skip(list, k);
+    node_t **p = skip(list, k);
 
     long long i = 0, r = rand() * 2;
 
@@ -66,17 +66,17 @@ node_t * insert(node_t * list, int k, int v) {
     return x;
 }
 
-void delete(node_t * list) {
+void delete(node_t *list) {
     if (list == NULL)
         return;
 
-    delete(list->next[0]);
+    delete (list->next[0]);
     free(list->next);
     free(list);
 }
 
 int main(void) {
-    node_t * list = create_list(), *node;
+    node_t *list = create_list(), *node;
 
     int n;
     scanf("%d", &n);
@@ -96,7 +96,7 @@ int main(void) {
 
     printf("%u\n", count);
 
-    delete(list);
+    delete (list);
 
     return 0;
 }

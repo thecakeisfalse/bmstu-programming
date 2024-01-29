@@ -1,20 +1,18 @@
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <assert.h>
 
 struct Node {
     int k, v;
-    struct Node * next_node;
+    struct Node *next_node;
 };
 
 typedef struct Node Node_t;
 
-int hash(int i, int m) {
-    return i % m;
-}
+int hash(int i, int m) { return i % m; }
 
-Node_t * new_node(int k, int v) {
-    Node_t * node = (Node_t *)calloc(1, sizeof(Node_t));
+Node_t *new_node(int k, int v) {
+    Node_t *node = (Node_t *)calloc(1, sizeof(Node_t));
 
     node->k = k;
     node->v = v;
@@ -23,8 +21,8 @@ Node_t * new_node(int k, int v) {
     return node;
 }
 
-Node_t * search(Node_t * node, int k) {
-    Node_t * cur = node;
+Node_t *search(Node_t *node, int k) {
+    Node_t *cur = node;
 
     while (cur != NULL && cur->k != k)
         cur = cur->next_node;
@@ -32,12 +30,14 @@ Node_t * search(Node_t * node, int k) {
     return cur;
 }
 
-void insert(Node_t * node, int k, int v) {
+void insert(Node_t *node, int k, int v) {
     Node_t *cur = node, *prev = NULL;
 
     assert(cur != NULL);
 
-    for (; cur->next_node != NULL && cur->k != k; prev = cur, cur = cur->next_node);
+    for (; cur->next_node != NULL && cur->k != k;
+         prev = cur, cur = cur->next_node)
+        ;
 
     if (v == 0) {
         if (cur->k == k) {
@@ -54,18 +54,19 @@ void insert(Node_t * node, int k, int v) {
         cur->next_node = new_node(k, v);
 }
 
-void delete(Node_t * node) {
+void delete(Node_t *node) {
     if (node == NULL)
         return;
-    
-    delete(node->next_node);
+
+    delete (node->next_node);
     free(node);
 }
 
 int main() {
-    int m; scanf("%d", &m);
+    int m;
+    scanf("%d", &m);
 
-    Node_t ** array = (Node_t **)calloc(m, sizeof(Node_t*));
+    Node_t **array = (Node_t **)calloc(m, sizeof(Node_t *));
     for (int i = 0; i < m; ++i)
         array[i] = new_node(-1, -1);
 
@@ -75,17 +76,19 @@ int main() {
         if (cmd[1] == 'N') {
             break;
         } else if (cmd[1] == 'T') {
-            int i; scanf("%d", &i);
-            Node_t * cur = search(array[hash(i, m)], i);
+            int i;
+            scanf("%d", &i);
+            Node_t *cur = search(array[hash(i, m)], i);
             printf("%d\n", (cur == NULL ? 0 : cur->v));
         } else if (cmd[1] == 'S') {
-            int k, v; scanf("%d %d", &k, &v);
+            int k, v;
+            scanf("%d %d", &k, &v);
             insert(array[hash(k, m)], k, v);
         }
     }
 
     for (int i = 0; i < m; ++i)
-        delete(array[i]);
+        delete (array[i]);
     free(array);
 
     return 0;

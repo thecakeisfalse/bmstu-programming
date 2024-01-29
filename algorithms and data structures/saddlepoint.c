@@ -1,9 +1,10 @@
-#include <stdio.h>
 #include <math.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 int main() {
-    int n, m, x; scanf("%d %d", &n, &m);
+    int n, m, x;
+    scanf("%d %d", &n, &m);
     int rows[n], columns[m];
 
     for (int i = 0; i < n; ++i) {

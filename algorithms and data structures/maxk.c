@@ -9,7 +9,7 @@ int main() {
 
     for (int i = 0; i < n; ++i)
         scanf("%lld", &A[i]);
-    
+
     scanf("%lld", &k);
 
     for (i = 0; i < k; ++i)
@@ -18,8 +18,9 @@ int main() {
     mx = s;
 
     for (; i < n; ++i) {
-        s += A[i] - A[i-k];
-        if (s > mx) mx = s;
+        s += A[i] - A[i - k];
+        if (s > mx)
+            mx = s;
     }
 
     printf("%lld\n", mx);

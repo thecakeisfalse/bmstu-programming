@@ -1,15 +1,15 @@
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <assert.h>
 
 struct Node {
     int k, v;
-    struct Node * parent;
-    struct Node * left, * right;
+    struct Node *parent;
+    struct Node *left, *right;
 };
 
-struct Node * lookup(struct Node * T, int k) {
-    struct Node * x = T;
+struct Node *lookup(struct Node *T, int k) {
+    struct Node *x = T;
 
     while (x != NULL && x->k != k) {
         if (k < x->k)
@@ -21,8 +21,8 @@ struct Node * lookup(struct Node * T, int k) {
     return x;
 }
 
-void insert(struct Node * T, int k, int v) {
-    struct Node * y = (struct Node *)calloc(sizeof(struct Node), 1);
+void insert(struct Node *T, int k, int v) {
+    struct Node *y = (struct Node *)calloc(sizeof(struct Node), 1);
     y->k = k;
     y->v = v;
     y->parent = y->left = y->right = NULL;
@@ -30,9 +30,9 @@ void insert(struct Node * T, int k, int v) {
     if (T == NULL) {
         T = y;
     } else {
-        struct Node * x = T;
+        struct Node *x = T;
         while (1) {
-            assert (x->k != k);
+            assert(x->k != k);
             if (k < x->k) {
                 if (x->left == NULL) {
                     x->left = y;
@@ -52,24 +52,25 @@ void insert(struct Node * T, int k, int v) {
     }
 }
 
-void delete(struct Node * T) {
+void delete(struct Node *T) {
     if (T == NULL)
         return;
 
     if (T->left != NULL)
-        delete(T->left);
-    
+        delete (T->left);
+
     if (T->right != NULL)
-        delete(T->right);
+        delete (T->right);
 
     free(T);
 }
 
 int main() {
-    struct Node * T = (struct Node *)calloc(sizeof(struct Node), 1);
+    struct Node *T = (struct Node *)calloc(sizeof(struct Node), 1);
     T->k = -1;
 
-    int n; scanf("%d", &n);
+    int n;
+    scanf("%d", &n);
     unsigned int s = 0, x, count = 0;
 
     for (int i = 0; i < n; ++i) {
@@ -85,7 +86,7 @@ int main() {
 
     printf("%u\n", count);
 
-    delete(T);
+    delete (T);
 
     return 0;
 }

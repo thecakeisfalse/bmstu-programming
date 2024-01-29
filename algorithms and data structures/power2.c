@@ -1,11 +1,10 @@
 #include <stdio.h>
 
-int is_power2(int n) {
-    return n > 0 && (n & (n - 1)) == 0;
-}
+int is_power2(int n) { return n > 0 && (n & (n - 1)) == 0; }
 
 int main() {
-    int n; scanf("%d", &n);
+    int n;
+    scanf("%d", &n);
     int a[n];
     for (int i = 0; i < n; ++i)
         scanf("%d", &a[i]);

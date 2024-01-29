@@ -7,15 +7,15 @@ struct Elem {
     int v;
 };
 
-struct Elem * create_elem(void) {
-    struct Elem * elem = (struct Elem *)calloc(1, sizeof(struct Elem));
+struct Elem *create_elem(void) {
+    struct Elem *elem = (struct Elem *)calloc(1, sizeof(struct Elem));
     elem->v = __INT32_MAX__;
     elem->next = elem->prev = elem;
     return elem;
 }
 
-void free_elem(struct Elem * elem) {
-    for (struct Elem * temp = elem->next, *v; temp != elem; ) {
+void free_elem(struct Elem *elem) {
+    for (struct Elem *temp = elem->next, *v; temp != elem;) {
         v = temp;
         temp = temp->next;
         free(v);
@@ -24,12 +24,12 @@ void free_elem(struct Elem * elem) {
     free(elem);
 }
 
-void insertsort(int n, struct Elem * list) {
+void insertsort(int n, struct Elem *list) {
     struct Elem *i, *loc, *j;
 
-    for (i = list->next; n --> 0; i = j) {
+    for (i = list->next; n-- > 0; i = j) {
         j = i->next;
-        
+
         for (loc = i->prev; loc != list && loc->v > i->v;)
             loc = loc->prev;
 
@@ -45,11 +45,12 @@ void insertsort(int n, struct Elem * list) {
 }
 
 int main() {
-    int n, m; scanf("%d", &n);
+    int n, m;
+    scanf("%d", &n);
 
     struct Elem *root = create_elem(), *temp;
 
-    for (temp = root, m = n; m --> 0; temp = temp->next) {
+    for (temp = root, m = n; m-- > 0; temp = temp->next) {
         temp->next = create_elem();
         scanf("%d", &temp->next->v);
         temp->next->next = root;
@@ -58,7 +59,7 @@ int main() {
 
     insertsort(n, root);
 
-    for (temp = root->next; n --> 0; temp = temp->next)
+    for (temp = root->next; n-- > 0; temp = temp->next)
         printf("%d\n", temp->v);
 
     free_elem(root);

@@ -1,13 +1,14 @@
-#include <stdio.h>
-#include <math.h>
 #include <assert.h>
+#include <math.h>
+#include <stdio.h>
 
 typedef long double logfrac;
 
 int main() {
     assert(sizeof(int) == 4);
 
-    int n; scanf("%d", &n);
+    int n;
+    scanf("%d", &n);
     logfrac v[n];
 
     for (int i = 0; i < n; ++i) {

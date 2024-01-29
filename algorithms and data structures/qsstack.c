@@ -1,7 +1,7 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 #include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 struct Task {
     int low, high;
@@ -13,32 +13,34 @@ struct Stack {
     struct Task **data;
 };
 
-struct Stack * new_stack() {
-    struct Stack * stack = (struct Stack *)calloc(1, sizeof(struct Stack));
+struct Stack *new_stack() {
+    struct Stack *stack = (struct Stack *)calloc(1, sizeof(struct Stack));
 
     stack->capacity = 1;
     stack->top = 0;
-    stack->data = (struct Task **)calloc(stack->capacity, sizeof(struct Task *));
+    stack->data =
+        (struct Task **)calloc(stack->capacity, sizeof(struct Task *));
 
     return stack;
 }
 
-void stack_push(struct Stack * stack, struct Task * task) {
+void stack_push(struct Stack *stack, struct Task *task) {
     stack->data[stack->top++] = task;
 
     if (stack->top == stack->capacity) {
         stack->capacity <<= 1;
-        stack->data = realloc(stack->data, stack->capacity * sizeof(struct Task));
+        stack->data =
+            realloc(stack->data, stack->capacity * sizeof(struct Task));
         assert(stack->data != NULL);
     }
 }
 
-struct Task * stack_pop(struct Stack * stack) {
+struct Task *stack_pop(struct Stack *stack) {
     assert(stack->top > 0);
     return stack->data[--stack->top];
 }
 
-void delete_stack(struct Stack * stack) {
+void delete_stack(struct Stack *stack) {
     for (int i = 0; i < stack->top; ++i)
         free(stack->data[i]);
 
@@ -46,8 +48,8 @@ void delete_stack(struct Stack * stack) {
     free(stack);
 }
 
-struct Task * create_task(int low, int high) {
-    struct Task * task = (struct Task *)calloc(1, sizeof(struct Task));
+struct Task *create_task(int low, int high) {
+    struct Task *task = (struct Task *)calloc(1, sizeof(struct Task));
 
     task->low = low;
     task->high = high;
@@ -55,13 +57,13 @@ struct Task * create_task(int low, int high) {
     return task;
 }
 
-void swap(int * a, int * b) {
+void swap(int *a, int *b) {
     int t = *a;
     *a = *b;
     *b = t;
 }
 
-int partition(int l, int r, int * a) {
+int partition(int l, int r, int *a) {
     int pivot = a[r], q = l;
 
     for (int i = l; i < r; ++i)
@@ -73,21 +75,21 @@ int partition(int l, int r, int * a) {
     return q;
 }
 
-void quicksort(int n, int * a) {
-    struct Stack * stack = new_stack();
-    struct Task * task;
-    stack_push(stack, create_task(0, n-1));
+void quicksort(int n, int *a) {
+    struct Stack *stack = new_stack();
+    struct Task *task;
+    stack_push(stack, create_task(0, n - 1));
 
     while (stack->top != 0) {
         task = stack_pop(stack);
 
         int q = partition(task->low, task->high, a);
 
-        if (task->low < q-1)
-            stack_push(stack, create_task(task->low, q-1));
+        if (task->low < q - 1)
+            stack_push(stack, create_task(task->low, q - 1));
 
-        if (q+1 < task->high)
-            stack_push(stack, create_task(q+1, task->high));
+        if (q + 1 < task->high)
+            stack_push(stack, create_task(q + 1, task->high));
 
         free(task);
     }
@@ -96,8 +98,9 @@ void quicksort(int n, int * a) {
 }
 
 int main(void) {
-    int n; scanf("%d", &n);
-    int * a = (int *)calloc(n, sizeof(int));
+    int n;
+    scanf("%d", &n);
+    int *a = (int *)calloc(n, sizeof(int));
     for (int i = 0; i < n; ++i)
         scanf("%d", &a[i]);
 

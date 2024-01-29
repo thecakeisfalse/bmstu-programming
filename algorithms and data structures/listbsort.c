@@ -5,19 +5,19 @@
 #define BUFFER_SIZE 1000
 #define WORDS_SIZE 100
 
-#define swap(a, b)         \
-    {                      \
-        char *temp = b->v; \
-        b->v = a->v;       \
-        a->v = temp;       \
+#define swap(a, b)                                                             \
+    {                                                                          \
+        char *temp = b->v;                                                     \
+        b->v = a->v;                                                           \
+        a->v = temp;                                                           \
     }
 
 struct Elem {
     struct Elem *next;
-    char * v;
+    char *v;
 };
 
-struct Elem * bsort(struct Elem * list) {
+struct Elem *bsort(struct Elem *list) {
     struct Elem *loop = list, *temp, *p1, *p2;
 
     for (; loop != NULL; loop = loop->next) {
@@ -30,7 +30,7 @@ struct Elem * bsort(struct Elem * list) {
     return list;
 }
 
-void free_list(struct Elem * e) {
+void free_list(struct Elem *e) {
     if (e == NULL)
         return;
 
@@ -38,7 +38,7 @@ void free_list(struct Elem * e) {
     free(e);
 }
 
-char ** split(char * str, char * delim) {
+char **split(char *str, char *delim) {
     int n = 0, size = WORDS_SIZE;
     char **words = (char **)calloc(size, sizeof(char *));
 
@@ -58,9 +58,9 @@ char ** split(char * str, char * delim) {
     return words;
 }
 
-char * read_line(void) {
+char *read_line(void) {
     int buffer_size = BUFFER_SIZE, pos = 0;
-    char * buffer = (char *)calloc(buffer_size, sizeof(char)), symb;
+    char *buffer = (char *)calloc(buffer_size, sizeof(char)), symb;
 
     while (1) {
         symb = getchar();
@@ -81,10 +81,10 @@ char * read_line(void) {
 }
 
 int main() {
-    char * s = read_line();
-    char ** words = split(s, " ");
-    struct Elem * root = (struct Elem *)calloc(1, sizeof(struct Elem));
-    struct Elem * cur = root;
+    char *s = read_line();
+    char **words = split(s, " ");
+    struct Elem *root = (struct Elem *)calloc(1, sizeof(struct Elem));
+    struct Elem *cur = root;
 
     for (int i = 0; *(words + i) != NULL; ++i, cur = cur->next) {
         cur->next = (struct Elem *)calloc(1, sizeof(struct Elem));
@@ -93,14 +93,14 @@ int main() {
 
     bsort(root->next);
 
-    for (struct Elem * cur = root->next; cur != NULL; cur = cur->next)
+    for (struct Elem *cur = root->next; cur != NULL; cur = cur->next)
         printf("%s ", cur->v);
 
     free_list(root);
 
-    for (int i = 0; *(words+i) != NULL; ++i)
-        free(*(words+i));
-    
+    for (int i = 0; *(words + i) != NULL; ++i)
+        free(*(words + i));
+
     free(words);
     free(s);
 

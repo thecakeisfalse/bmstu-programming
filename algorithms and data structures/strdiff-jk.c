@@ -1,12 +1,15 @@
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 
-int strdiff(char * a, char * b) {
+int strdiff(char *a, char *b) {
     size_t na = strlen(a), nb = strlen(b), i = 0, j = 0;
-    for (i = 0; i < na && i < nb && a[i] == b[i]; ++i);
-    if (i == na && i == nb) return -1;
-    for (j = 0; j <= 7 && ((a[i] ^ b[i]) & (1 << j)) == 0; ++j);
+    for (i = 0; i < na && i < nb && a[i] == b[i]; ++i)
+        ;
+    if (i == na && i == nb)
+        return -1;
+    for (j = 0; j <= 7 && ((a[i] ^ b[i]) & (1 << j)) == 0; ++j)
+        ;
     return i * 8 + j;
 }
 

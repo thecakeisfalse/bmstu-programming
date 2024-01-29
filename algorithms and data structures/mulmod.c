@@ -5,8 +5,10 @@ typedef unsigned long long ullong;
 ullong mulmod(ullong a, ullong b, ullong mod) {
     if (b == 0)
         return 0;
-    
-    return ((2 * mulmod(a % mod, b / 2, mod)) % mod + ((a % mod) * (b % 2)) % mod) % mod;
+
+    return ((2 * mulmod(a % mod, b / 2, mod)) % mod +
+            ((a % mod) * (b % 2)) % mod) %
+           mod;
 }
 
 int main() {

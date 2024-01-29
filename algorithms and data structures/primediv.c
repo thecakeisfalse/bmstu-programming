@@ -1,7 +1,7 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 #include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #define SET(a, x) (a |= (1 << (7 - x)))
 #define UNSET(a, x) (a &= ~(1 << (7 - x)))
@@ -11,11 +11,12 @@ typedef long long llong;
 typedef unsigned char uchar;
 
 int main() {
-    llong n; scanf("%lld", &n);
+    llong n;
+    scanf("%lld", &n);
     n = llabs(n);
 
-    llong sq = sqrt(n+1), size = (sq + 7LL) >> 3, last = 1;
-    uchar * a = (char *)calloc(size+1, sizeof(uchar));
+    llong sq = sqrt(n + 1), size = (sq + 7LL) >> 3, last = 1;
+    uchar *a = (char *)calloc(size + 1, sizeof(uchar));
 
     memset(a, 255, size);
 
