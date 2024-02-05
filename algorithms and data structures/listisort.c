@@ -27,7 +27,7 @@ void free_elem(struct Elem *elem) {
 void insertsort(int n, struct Elem *list) {
     struct Elem *i, *loc, *j;
 
-    for (i = list->next; n-- > 0; i = j) {
+    for (i = list->next; n --> 0; i = j) {
         j = i->next;
 
         for (loc = i->prev; loc != list && loc->v > i->v;)
@@ -50,7 +50,7 @@ int main() {
 
     struct Elem *root = create_elem(), *temp;
 
-    for (temp = root, m = n; m-- > 0; temp = temp->next) {
+    for (temp = root, m = n; m --> 0; temp = temp->next) {
         temp->next = create_elem();
         scanf("%d", &temp->next->v);
         temp->next->next = root;
@@ -59,7 +59,7 @@ int main() {
 
     insertsort(n, root);
 
-    for (temp = root->next; n-- > 0; temp = temp->next)
+    for (temp = root->next; n --> 0; temp = temp->next)
         printf("%d\n", temp->v);
 
     free_elem(root);
