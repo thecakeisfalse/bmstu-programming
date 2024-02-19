@@ -1,0 +1,13 @@
+*
+!*/
+!*.gitignore
+!*.gitkeep
+!*.c
+!*.h
+!*.scm
+!*.rb
+!*.md
+!*.pdf
+!*.go
+!*.java
+.*/
