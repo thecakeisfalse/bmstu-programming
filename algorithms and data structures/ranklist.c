@@ -1,172 +1,176 @@
-#include <assert.h>
-#include <stdbool.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
+#include <iso646.h>
 
-#define INF __INT32_MAX__
-#define COMPARE(x, y) ((int64_t)x - (int64_t)y)
-
-void *memdup(const void *mem, size_t size) {
-    void *out = malloc(size);
-    return out ? memcpy(out, mem, size) : NULL;
-}
-
-#define MAX_LEVELS 30
+#define M 27
 
 typedef struct node {
-    int k;
-    char *v;
+    int key;
+    char *value;
     struct node **next;
     int *span;
-} node_t;
+} node;
 
-node_t *create_node(int k, char *v) {
-    node_t *x = (node_t *)calloc(1, sizeof(node_t));
-    x->k = k;
-    x->v = memdup(v, strlen(v) + 1);
-    x->next = (node_t **)calloc(MAX_LEVELS, sizeof(node_t *));
-    x->span = (int *)calloc(MAX_LEVELS, sizeof(int));
-    return x;
-}
+typedef struct {
+    node *root;
+} skiplist;
 
-node_t *create_list(void) {
-    node_t *n = (node_t *)calloc(1, sizeof(node_t));
-    n->k = -INF;
-    n->next = (node_t **)calloc(MAX_LEVELS, sizeof(node_t *));
-    n->span = (int *)calloc(MAX_LEVELS, sizeof(int));
+node *create_node(int key, char *value) {
+    node *n = malloc(sizeof(node));
+    n->key = key;
 
-    for (int i = 0; i < MAX_LEVELS; ++i)
+    if (value == NULL) {
+        n->value = value;
+    } else {
+        n->value = malloc(strlen(value)+1);
+        memcpy(n->value, value, strlen(value)+1);
+    }
+
+    n->next = malloc(M * sizeof(node *));
+    for (int i = 0; i < M; i++) {
         n->next[i] = NULL;
+    }
+    
+    n->span = malloc(M * sizeof(int));
+    memset(n->span, 0, M * sizeof(int));
 
     return n;
 }
 
-node_t **skip(node_t *l, int k) {
-    node_t **p = (node_t **)calloc(MAX_LEVELS, sizeof(node_t *)), *x = l;
-
-    for (int i = MAX_LEVELS - 1; i >= 0; --i) {
-        while (x->next[i] != NULL && COMPARE(x->next[i]->k, k) < 0)
-            x = x->next[i];
-
-        p[i] = x;
-    }
-
-    return p;
+skiplist *create_skiplist() {
+    skiplist *sk = malloc(sizeof(skiplist));
+    sk->root = create_node(-1111111111, NULL);
+    return sk;
 }
 
-node_t *search(node_t *l, int k) {
-    node_t **p = skip(l, k);
-    node_t *x = p[0]->next[0];
-    free(p);
-    return (x == NULL || COMPARE(x->k, k) != 0 ? NULL : x);
-}
-
-int rank(node_t *l, int k) {
-    int r = 0;
-    node_t *x = l;
-
-    for (int m = MAX_LEVELS - 1; m >= 0; --m) {
-        while (x->next[m] != NULL && COMPARE(x->next[m]->k, k) < 0) {
-            r += x->span[m];
-            x = x->next[m];
-        }
-    }
-
-    return (k == -INF ? -1 : r);
-}
-
-void insert(node_t *l, int k, char *v) {
-    node_t **p = skip(l, k);
-    node_t *x = create_node(k, v);
-
-    uint64_t i = 0, r = rand() * 2LL, rank_x = rank(l, p[0]->k) + 1;
-
-    for (; i < MAX_LEVELS && r % 2 == 0; ++i, r /= 2) {
-        x->next[i] = p[i]->next[i];
-        p[i]->next[i] = x;
-
-        int temp_rank = rank(l, p[i]->k);
-        x->span[i] = p[i]->span[i] + 1 - (rank_x - temp_rank);
-        p[i]->span[i] = rank_x - temp_rank;
-    }
-
-    for (; i < MAX_LEVELS; ++i) {
-        x->next[i] = NULL;
-        ++p[i]->span[i];
-    }
-
-    free(p);
-}
-
-void free_node(node_t *n) {
-    if (n == NULL)
-        return;
-
-    free_node(n->next[0]);
+void delete_node(node *n) {
     free(n->next);
     free(n->span);
-    free(n->v);
+    free(n->value);
     free(n);
 }
 
-void delete(node_t *l, int k) {
-    node_t **p = skip(l, k);
-    node_t *x = p[0]->next[0];
-
-    assert(x != NULL && COMPARE(x->k, k) == 0);
-
-    int i = 0;
-    for (; i < MAX_LEVELS && p[i]->next[i] == x; ++i) {
-        p[i]->next[i] = x->next[i];
-        p[i]->span[i] += x->span[i] - 1;
+void delete_nodes(node *n) {
+    if (n == NULL) {
+        return;
     }
 
-    for (; i < MAX_LEVELS; ++i)
-        --p[i]->span[i];
-
-    free(x->next);
-    free(x->span);
-    free(x->v);
-    free(x);
-
-    free(p);
+    delete_nodes(n->next[0]);
+    delete_node(n);
 }
 
-int main(void) {
-    srand(time(NULL));
+void delete_skiplist(skiplist *list) {
+    delete_nodes(list->root);
+    free(list);
+}
 
-    node_t *l = create_list();
+void skip(skiplist *list, int key, node **p) {
+    node *x = list->root;
+    for (int i = M-1; i >= 0; i--) {
+        while (x->next[i] != NULL and x->next[i]->key < key) {
+            x = x->next[i];
+        }
+        p[i] = x;
+    }
+}
 
-    char cmd[7];
-    while (1) {
-        scanf("%s", cmd);
+int rank(skiplist *list, int key) {
+    node *x = list->root;
 
-        if (!strcmp(cmd, "END")) {
-            break;
-        } else if (!strcmp(cmd, "LOOKUP")) {
-            int k;
-            scanf("%d", &k);
-            printf("%s\n", search(l, k)->v);
-        } else if (!strcmp(cmd, "INSERT")) {
-            int k;
-            char v[1000];
-            scanf("%d %s", &k, v);
-            insert(l, k, v);
-        } else if (!strcmp(cmd, "DELETE")) {
-            int k;
-            scanf("%d", &k);
-            delete (l, k);
-        } else if (!strcmp(cmd, "RANK")) {
-            int k;
-            scanf("%d", &k);
-            printf("%d\n", rank(l, k));
+    int sum = 0;
+    for (int i = M-1; i >= 0; i--) {
+        while (x->next[i] != NULL and x->next[i]->key < key) {
+            sum += x->span[i];
+            x = x->next[i];
         }
     }
 
-    free_node(l);
+    if (key == -1111111111)
+        return -1;
+
+    return sum;
+}
+
+node *lookup(skiplist *list, int key) {
+    node *p[M];
+    skip(list, key, p);
+    return p[0]->next[0];
+}
+
+void insert(skiplist *list, int key, char *value) {
+    node *p[M];
+    skip(list, key, p);
+
+    node *x = create_node(key, value);
+    int r = rand() % M + 1;
+    int current_rank = rank(list, p[0]->key);
+
+    for (int i = 0; i < r; i++) {
+        x->next[i] = p[i]->next[i];
+        p[i]->next[i] = x;
+
+        int new_rank = rank(list, p[i]->key);
+        x->span[i] = p[i]->span[i] + new_rank - current_rank;
+        p[i]->span[i] = current_rank - new_rank + 1;
+    }
+
+    for (int i = r; i < M; i++) {
+        p[i]->span[i]++;
+    }
+}
+
+void delete(skiplist *list, int key) {
+    node *p[M];
+    skip(list, key, p);
+
+    node *x = p[0]->next[0];
+
+    for (int i = 0; i < M; i++) {
+        p[i]->span[i]--;
+    }
+
+    for (int i = 0; i < M and p[i]->next[i] == x; i++) {
+        p[i]->next[i] = x->next[i];
+        p[i]->span[i] += x->span[i];
+    }
+
+    delete_node(x);
+}
+
+int main(void) {
+    skiplist *list = create_skiplist();
+
+    char command[7];
+    while (1) {
+        scanf("%s", command);
+
+        if (!strcmp(command, "END")) {
+            break;
+        } else if (!strcmp(command, "LOOKUP")) {
+            int key;
+            scanf("%d", &key);
+            node *n = lookup(list, key);
+            if (n != NULL and n->value != NULL) {
+                printf("%s\n", n->value);
+            }
+        } else if (!strcmp(command, "INSERT")) {
+            int key;
+            char value[1000];
+            scanf("%d %s", &key, value);
+            insert(list, key, value);
+        } else if (!strcmp(command, "DELETE")) {
+            int key;
+            scanf("%d", &key);
+            delete (list, key);
+        } else if (!strcmp(command, "RANK")) {
+            int key;
+            scanf("%d", &key);
+            printf("%d\n", rank(list, key));
+        }
+    }
+
+    delete_skiplist(list);
 
     return 0;
 }
