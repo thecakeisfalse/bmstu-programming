@@ -12,4 +12,8 @@
 !*.java
 !*.cpp
 !*.cc
+!*.jpg
+!*.png
+!*.tex
+!*.cls
 .*/
