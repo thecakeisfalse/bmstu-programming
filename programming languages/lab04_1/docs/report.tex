@@ -1,0 +1,52 @@
+\documentclass{../../iu9lab}
+
+\labnumber{4-1}
+\course{Языки и методы программирования}
+\title{Реализация итераторов в языке Java}
+\group{ИУ9-21Б}
+\teacher{Посевин Д. П.}
+
+\begin{document}
+    \maketitle
+    
+    \section{Цель}
+
+    Изучение обобщённых итераторов и экземплярных вложенных классов языка Java.
+
+    \section{Персональный вариант}
+
+    Множество дробей с итератором по всем парам дробей, произведение которых равно $1$.
+
+    \section{Решение}
+
+    \subsection{Код}
+
+    \begin{code}
+        \inputminted{java}{../src/Test.java}
+        \caption{Test.java}
+    \end{code}
+
+    \begin{code}
+        \inputminted{java}{../src/Pair.java}
+        \caption{Pair.java}
+    \end{code}
+
+    \begin{code}
+        \inputminted{java}{../src/Fraction.java}
+        \caption{Fraction.java}
+    \end{code}
+
+    \begin{code}
+        \inputminted{java}{../src/FractionsSet.java}
+        \caption{FractionsSet.java}
+    \end{code}
+
+    \subsection{Скриншоты}
+
+    \begin{figure}[!htbp]
+        \centering
+        \includegraphics[width=\textwidth]{terminal}
+        \caption{Пример работы}
+    \end{figure}
+
+\end{document}

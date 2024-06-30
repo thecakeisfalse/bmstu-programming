@@ -1,0 +1,63 @@
+\documentclass{../../iu9lab}
+
+\labnumber{2а}
+\course{Языки и методы программирования}
+\title{Модель вселенной}
+\group{ИУ9-21Б}
+\teacher{Посевин Д. П.}
+
+\begin{document}
+    \maketitle
+    
+    \section{Цель}
+
+    Реализовать модель вселенной. Каждый элемент вселенной должен быть объектом некоего публичного класса, который инициализируется вспомогательным публичным классом порождающим эту вселенную. При инициализации экземпляров класса частиц моделируемой вселенной необходимо подсчитывать количество частиц вселенной используя статичное экземплярное поле защищенное от изменения из объектов внешних классов путем реализации статичного метода. Сформировать исходные данные и определить необходимые экземплярные поля для хранения состояния объектов частиц вселенной в соответствии с условием задачи и реализовать расчет.
+
+    \section{Персональный вариант}
+
+    Вычислить среднюю массу частицы вселенной.
+
+    \section{Решение}
+
+    \subsection{Код}
+
+    \begin{code}
+        \inputminted{java}{../src/Test.java}
+        \caption{Test.java}
+    \end{code}
+
+    \begin{code}
+        \inputminted{java}{../src/Universe.java}
+        \caption{Universe.java}
+    \end{code}
+
+    \begin{code}
+        \inputminted{java}{../src/Particle.java}
+        \caption{Particle.java}
+    \end{code}
+
+    \subsection{Скриншоты}
+
+    \begin{figure}[!htbp]
+        \centering
+        \includegraphics[width=\textwidth]{terminal}
+        \caption{Пример работы}
+    \end{figure}
+
+    \begin{figure}[!htbp]
+        \centering
+        \includegraphics[width=\textwidth]{intellij1}
+        \includegraphics[width=\textwidth]{intellij2}
+        \caption{Исходный код ч. 1}
+    \end{figure}
+
+    \begin{figure}[!htbp]
+        \includegraphics[width=\textwidth]{intellij3}
+        \caption{Исходный код ч. 2}
+    \end{figure}
+
+    \section{Вывод}
+
+    В ходе выполнения данной лабораторной работы была реализована модель вселенной.
+
+\end{document}

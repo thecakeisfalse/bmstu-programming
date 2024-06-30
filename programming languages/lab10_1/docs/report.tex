@@ -1,0 +1,37 @@
+\documentclass{../../iu9lab}
+
+\labnumber{10-1}
+\course{Языки и методы программирования}
+\title{Реализация итераторов на языке C++}
+\group{ИУ9-21Б}
+\teacher{Посевин Д. П.}
+
+\begin{document}
+    \maketitle
+    
+    \section{Цель}
+
+    Данная работа предназначена для приобретения навыков разработки контейнерных классов с итераторам.
+
+    \section{Персональный вариант}
+
+    Строка с однонаправленным итератором по словам (слова в строке разделены произвольным количеством пробелов). Должно быть предусмотрено обращение к отдельным символам строки с помощью перегруженной операции <<[ ]>>, работающей за константное время.
+
+    \section{Решение}
+
+    \subsection{Код}
+
+    \begin{code}
+        \inputminted{cpp}{../src/main.cc}
+        \caption{main.cc}
+    \end{code}
+
+    \subsection{Скриншоты}
+
+    \begin{figure}[!htbp]
+        \centering
+        \includegraphics[width=\textwidth]{terminal}
+        \caption{Пример работы программы}
+    \end{figure}
+
+\end{document}

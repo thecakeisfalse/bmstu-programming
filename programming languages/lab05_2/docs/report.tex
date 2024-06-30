@@ -1,0 +1,55 @@
+\documentclass{../../iu9lab}
+
+\labnumber{5-2}
+\course{Языки и методы программирования}
+\title{Монады в языке Java}
+\group{ИУ9-21Б}
+\teacher{Посевин Д. П.}
+
+\begin{document}
+    \maketitle
+    
+    \section{Цель}
+
+    Приобретение навыков использования монад Optional и Stream в программах на языке Java.
+
+    \section{Персональный вариант}
+
+    Множество четырёхугольников на плоскости с операциями:
+    \begin{enumerate}
+        \item порождение потока площадей выпуклых четырёхугольников множества;
+        \item поиск четырёхугольника, имеющего максимальную сумму длин диагоналей.
+    \end{enumerate}
+    Проверить работу первой операции нужно путём подсчёта количества четырёхугольников, площади которых принадлежат интервалам:
+    \[
+        [0, 10), [10, 20), \ldots, [90, 100)
+    \]
+
+    \section{Решение}
+
+    \subsection{Код}
+
+    \begin{code}
+        \inputminted{java}{../src/Test.java}
+        \caption{Test.java}
+    \end{code}
+
+    \begin{code}
+        \inputminted{java}{../src/Pair.java}
+        \caption{Point.java}
+    \end{code}
+
+    \begin{code}
+        \inputminted{java}{../src/Polynom.java}
+        \caption{Quad.java}
+    \end{code}
+
+    \subsection{Скриншоты}
+
+    \begin{figure}[!htbp]
+        \centering
+        \includegraphics[width=\textwidth]{terminal}
+        \caption{Пример работы программы}
+    \end{figure}
+
+\end{document}

@@ -1,0 +1,42 @@
+\documentclass{../../iu9lab}
+
+\labnumber{5-1}
+\course{Языки и методы программирования}
+\title{Монады в языке Java}
+\group{ИУ9-21Б}
+\teacher{Посевин Д. П.}
+
+\begin{document}
+    \maketitle
+    
+    \section{Цель}
+
+    Приобретение навыков использования монад Optional и Stream в программах на языке Java.
+
+    \section{Персональный вариант}
+
+    Таблица, отображающая названия товаров в их цены и количаства имеющихся на складе единиц товара, с операциями:
+    \begin{enumerate}
+        \item порождение потока названий товаров, стоимость запасов которых превышает указанную сумму денег;
+        \item поиск товара, количество единиц которого на складе превышает суммарное количество единиц всех остальных товаров.
+    \end{enumerate}
+    Проверить работу первой операции нужно путём группировки названий товаров по первой букве названия.
+
+    \section{Решение}
+
+    \subsection{Код}
+
+    \begin{code}
+        \inputminted{java}{../src/Test.java}
+        \caption{Test.java}
+    \end{code}
+
+    \subsection{Скриншоты}
+
+    \begin{figure}[!htbp]
+        \centering
+        \includegraphics[width=\textwidth]{terminal}
+        \caption{Пример работы программы}
+    \end{figure}
+
+\end{document}
