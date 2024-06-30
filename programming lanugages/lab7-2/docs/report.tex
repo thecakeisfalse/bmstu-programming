@@ -1,0 +1,56 @@
+\documentclass{../../iu9lab}
+
+\labnumber{7}
+\course{Языки и методы программирования}
+\title{Разработка простейшего класса на C++}
+\group{ИУ9-21Б}
+\teacher{Посевин Д. П.}
+
+\begin{document}
+    \maketitle
+    
+    \section{Цель}
+
+    Целью данной работы является изучение объектно-ориентированных возможностей языка C++.
+
+    \section{Персональный вариант}
+
+    Матрица смежности для простого орграфа с операциями:
+    \begin{enumerate}
+        \itemsep -0.8pt
+        \item определение, ведёт ли дуга из $i$-той вершины в $j$-тую (операция индексации)
+        \item добавление вершины;
+        \item удаление вершины;
+        \item определение, содержит ли граф циклы.
+    \end{enumerate}
+
+    \section{Решение}
+
+    \subsection{Код}
+
+    \begin{code}
+        \inputminted{cpp}{../src/main.cc}
+        \caption{main.cc}
+    \end{code}
+
+    \subsection{Скриншоты}
+
+    \begin{figure}[!htbp]
+        \centering
+        \includegraphics[width=\textwidth]{terminal}
+        \caption{Пример работы программы}
+    \end{figure}
+
+    \begin{figure}[!htbp]
+        \centering
+        \includegraphics[width=\textwidth]{graph1}
+        \caption{Граф до удаления ребра}
+    \end{figure}
+
+    \begin{figure}[!htbp]
+        \centering
+        \includegraphics[width=\textwidth]{graph2}
+        \caption{Граф после удаления ребра}
+    \end{figure}
+
+\end{document}

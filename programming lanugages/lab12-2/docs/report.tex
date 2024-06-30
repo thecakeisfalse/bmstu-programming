@@ -1,0 +1,53 @@
+\documentclass{../../iu9lab}
+
+\labnumber{12-2}
+\course{Языки и методы программирования}
+\title{Обработка текстовых файлов}
+\group{ИУ9-21Б}
+\teacher{Посевин Д. П.}
+
+\begin{document}
+    \maketitle
+    
+    \section{Цель}
+
+    Целью лабораторной работы является приобретение навыка разработки на языке C++ программ, осуществляющих анализ и преобразование текстовых файлов, записанных в различных форматах.
+
+    \section{Персональный вариант}
+
+    Найти все файлы с расширением «svg» в указанном каталоге и заменить прямоугольники с прямыми углами на прямоугольники с закруглёнными углами, и наоборот. Прямоугольник с прямыми углами в SVG-файле задаётся тегом rect, имеющим вид
+    \begin{center}
+        \centering
+        <rect x="50" y="20" width="150" height="150" />
+    \end{center}
+    Чтобы «закруглить» углы, достаточно добавить атрибуты rx и ry, задающие радиусы закругления. Например,
+    \begin{center}
+        \centering
+        <rect x="50" y="20" width="150" height="150" rx="20" ry="20" />
+    \end{center}
+    Работоспособность программы нужно проверить на наборе SVG-файлов, загруженных из интернета или созданных в векторном графическом редакторе.
+
+    \section{Решение}
+
+    \subsection{Код}
+
+    \begin{code}
+        \inputminted{cpp}{../src/main.cc}
+        \caption{main.cc}
+    \end{code}
+
+    \subsection{Скриншоты}
+
+    \begin{figure}[!htbp]
+        \centering
+        \includegraphics[width=\textwidth]{before}
+        \caption{До запуска}
+    \end{figure}
+
+    \begin{figure}[!htbp]
+        \centering
+        \includegraphics[width=\textwidth]{after}
+        \caption{После запуска}
+    \end{figure}
+
+\end{document}

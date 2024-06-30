@@ -1,0 +1,49 @@
+\documentclass{../../iu9lab}
+
+\labnumber{2}
+\course{Языки и методы программирования}
+\title{Разработка простейшего класса на языке Java}
+\group{ИУ9-21Б}
+\teacher{Посевин Д. П.}
+
+\begin{document}
+    \maketitle
+    
+    \section{Цель}
+
+    Целью данной работы является изучение базовых возможностей языка Java.
+
+    \section{Персональный вариант}
+
+    Класс бинарных отношений на множестве целых чисел от 0 до n с двумя операциями: проверка принадлежности пары чисел отношению; вычисление транзитивного замыкания отношения.
+
+    \section{Решение}
+
+    \subsection{Код}
+
+    \begin{code}
+        \inputminted{java}{../src/Test.java}
+        \caption{Test.java}
+    \end{code}
+
+    \begin{code}
+        \inputminted{java}{../src/BinaryRelation.java}
+        \caption{BinaryRelation.java}
+    \end{code}
+
+    \subsection{Скриншоты}
+
+    \begin{figure}[!htbp]
+        \centering
+        \includegraphics[width=\textwidth]{terminal}
+        \caption{Пример работы}
+    \end{figure}
+
+    \begin{figure}[!htbp]
+        \centering
+        \includegraphics[width=\textwidth]{intellij1}
+        \includegraphics[width=\textwidth]{intellij2}
+        \caption{Исходный код}
+    \end{figure}
+
+\end{document}
