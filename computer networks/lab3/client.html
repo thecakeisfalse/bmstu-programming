@@ -1,0 +1,163 @@
+<html>
+<head>
+    <title>Web-клиент</title>
+    <meta charset="utf8">
+    <script>
+        var sockets = [null]
+
+        function new_ws(address) {
+            var ws = new WebSocket("ws://"+address+"/ws")
+            ws.id = sockets.length
+
+            ws.onopen = function (_) {
+                ws.send("callback")
+                var newp = document.createElement("p")
+                newp.id = "id"+ws.id
+                newp.appendChild(document.createTextNode("data"))
+                document.getElementById("data").appendChild(newp)
+            }
+
+            ws.onmessage = function (event) {
+                if (event.data.slice(0, 3) === "$c:") {
+                    return
+                }
+                document.getElementById("id"+ws.id).innerHTML = event.data;
+            }
+
+            ws.onerror = function(error) {
+                alert(`[error] ${error.message}`);
+            };
+
+            return ws
+        }
+
+        function connect() {
+            const port = document.getElementById("port");
+            const ip = document.getElementById("ip");
+
+            if (port.value.length === 0 || ip.value.length === 0 || sockets[0] != null) {
+                return
+            }
+
+            sockets[0] = new WebSocket("ws://"+ip.value+":"+port.value+"/ws")
+
+            port.hidden = ip.hidden = true
+            document.getElementById("btn").hidden = true
+
+            sockets[0].onopen = function(_) {
+                sockets[0].send("connect");
+            };
+
+            sockets[0].onmessage = function(event) {
+                if (event.data.slice(0, 3) === "$c:") {
+                    let address = event.data.slice(3).trim()
+                    sockets.push(new_ws(address))
+                    console.log(address)
+                }
+            };
+        }
+
+    </script>
+    <style>
+
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            padding: 20px 40px;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            color: #ffffff;
+        }
+
+        p, span, a {
+            color: #e0e0e0;
+        }
+
+        a {
+            color: #1E90FF;
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: #4682B4;
+            text-decoration: underline;
+        }
+
+        button, .button {
+            background-color: #333333;
+            color: #ffffff;
+            border: 1px solid #555555;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        button:hover, .button:hover {
+            background-color: #444444;
+            border-color: #666666;
+        }
+
+        input, textarea, select {
+            background-color: #222222;
+            color: #e0e0e0;
+            border: 1px solid #555555;
+            padding: 10px;
+            margin: 5px 0;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            border-color: #1E90FF;
+            outline: none;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table, th, td {
+            border: 1px solid #555555;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #333333;
+            color: #ffffff;
+        }
+
+        tr:nth-child(even) {
+            background-color: #222222;
+        }
+
+        tr:nth-child(odd) {
+            background-color: #1E1E1E;
+        }
+
+        footer {
+            background-color: #1E1E1E;
+            color: #e0e0e0;
+            text-align: center;
+            padding: 10px 0;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <p><input id="ip" value="localhost"/></p>
+    <p><input id="port"/></p>
+    <p><button id="btn" onClick="connect()">Connect</button></p>
+    <div id="data"></div>
+</div>
+</body>
+</html>
