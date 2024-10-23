@@ -1,23 +1,42 @@
 *
+.*/
 !*/
+
+# Git configuration
 !*.gitignore
 !*.gitkeep
-!*.c
-!*.h
-!*.scm
-!*.rb
-!*.md
+
+# Reports
 !*.pdf
-!*.go
-!*.java
-!*.cpp
-!*.cc
 !*.jpg
 !*.png
 !*.tex
 !*.cls
+!*.md
+
+# AaDS files
+!*.c
+!*.h
+
+# IB files
+!*.scm
+!*.rb
+!*.sh
+
+# DM/PL files
+!*.go
+!*.java
+!*.cpp
+!*.cc
+
+# CN files
+!*.mod
+!*.html
+!*.css
+!*.js
+
+# LLP files
 !*.inc
 !*.asm
 !*.tasm
 !Makefile
-.*/
