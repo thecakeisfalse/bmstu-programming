@@ -1,10 +1,12 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"mime"
 	"net/http"
+	"os"
 	"path"
 	"slices"
 	"strings"
@@ -18,7 +20,10 @@ const (
 	ADDRESS = HOST + ":" + PORT
 )
 
+const CACHE_DIR = ".cache"
+
 var BLACKLIST = []string{"", ".net", ".ru", ".org", ".com", ".cn", ".gov", ".info"}
+var CACHEABLE = []string{".scss", ".css", ".png", ".jpg", ".jpeg", ".gif", ".ico", ".svg", ".pdf", ".tex"}
 
 func scrapeUrl(url string) *http.Response {
 	client := &http.Client{}
@@ -101,7 +106,7 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	payload := func(resp *http.Response) {
+	payload := func(resp *http.Response) string {
 		mimeType := getMIMEType(urlPrefix)
 		w.Header().Set("Content-Type", mimeType)
 
@@ -110,20 +115,59 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			bytes, err := io.ReadAll(resp.Body)
 			if err != nil {
-				return
+				return ""
 			}
 			result = string(bytes)
 		}
 
 		fmt.Fprintln(w, result)
+		return result
 	}
 
-	if resp := scrapeUrl(fmt.Sprintf("http://%s", urlPrefix)); resp != nil {
-		defer resp.Body.Close()
-		payload(resp)
-	} else if resp := scrapeUrl(fmt.Sprintf("https://%s", urlPrefix)); resp != nil {
-		defer resp.Body.Close()
-		payload(resp)
+	isCached := func(url string) bool {
+		_, err := os.Stat(fmt.Sprintf(".cache/%s", url))
+		return !(errors.Is(err, os.ErrNotExist) || errors.Is(err, os.ErrPermission))
+	}
+
+	isCacheable := func(url string) bool {
+		ext := path.Ext(url)
+		return slices.Contains(CACHEABLE, ext)
+	}
+
+	DumpCache := func(url string, data string) {
+		urlList := strings.Split(url, "/")
+		cachePath := fmt.Sprintf("%s/%s", CACHE_DIR, strings.Join(urlList[:len(urlList)-1], "/"))
+		os.MkdirAll(cachePath, 0776)
+
+		if err := os.WriteFile(fmt.Sprintf("%s/%s", CACHE_DIR, url), []byte(data), 0666); err != nil {
+			fmt.Println(err)
+		}
+	}
+
+	LoadCache := func(url string) string {
+		if data, err := os.ReadFile(fmt.Sprintf("%s/%s", CACHE_DIR, urlPrefix)); err == nil {
+			return string(data)
+		}
+		return ""
+	}
+
+	if isCacheable(urlPrefix) && isCached(urlPrefix) {
+		mimeType := getMIMEType(urlPrefix)
+		w.Header().Set("Content-Type", mimeType)
+		fmt.Fprintln(w, LoadCache(urlPrefix))
+		fmt.Printf("Loaded from cache: %s\n", urlPrefix)
+		return
+	}
+
+	for _, pref := range []string{"http", "https"} {
+		if resp := scrapeUrl(fmt.Sprintf("%s://%s", pref, urlPrefix)); resp != nil {
+			defer resp.Body.Close()
+			if data := payload(resp); isCacheable(urlPrefix) {
+				fmt.Printf("New cache: %s\n", urlPrefix)
+				DumpCache(urlPrefix, data)
+			}
+			break
+		}
 	}
 }
 
