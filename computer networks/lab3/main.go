@@ -8,14 +8,17 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"os/signal"
 	"strconv"
 	"strings"
+	"syscall"
 
 	"github.com/gorilla/websocket"
 )
 
 const HELP_MSG = `* quit/exit
 * connect address port
+* disconnect
 * edit string
 * show
 * help`
@@ -61,6 +64,12 @@ type NetworkPeer struct {
 	peerPort  int
 }
 
+func stringToNetworkPeer(s string) NetworkPeer {
+	networkPeer := NetworkPeer{}
+	networkPeer.fromString(s)
+	return networkPeer
+}
+
 func (p NetworkPeer) toString() string {
 	return fmt.Sprintf("%s:%d", p.ipAddress, p.peerPort)
 }
@@ -84,70 +93,125 @@ type Command struct {
 }
 
 type Request struct {
-	From string           `json:"from"` // Автор запроса
+	From string           `json:"from"`
 	Data *json.RawMessage `json:"data"`
 }
 
 // =====
 
-func wsPort(port int) int {
-	return 10*port + 1
+const NEW_MAGIC_CONST = 10
+
+func calculateWebSocketPort(port int) int {
+	return NEW_MAGIC_CONST*port + 1
 }
 
-func (p *NetworkPeer) getWsAddress() NetworkPeer {
+func (p *NetworkPeer) getWebSocketAddress() NetworkPeer {
 	return NetworkPeer{
 		ipAddress: p.ipAddress,
-		peerPort:  wsPort(p.peerPort),
+		peerPort:  calculateWebSocketPort(p.peerPort),
 	}
 }
 
 // =====
 
-func (p *Peer) handleCommands(from string, command Command) {
-	who := NetworkPeer{}
-	who.fromString(from)
+func (p *Peer) getPeersList() []string {
+	peerList := []string{}
 
+	for _, peer := range p.Peers {
+		peerList = append(peerList, peer.toString())
+	}
+
+	return peerList
+}
+
+func (p *Peer) handleTopologyMerge(from NetworkPeer, command Command) {
 	switch command.Command {
-	case "peers":
+	case "connect":
 		{
-			var args []string
 			for _, peer := range p.Peers {
-				args = append(args, peer.toString())
-			}
-
-			cmd := Command{
-				Command: "list",
-				Args:    args,
-			}
-
-			p.sendRequest(cmd, who)
-			p.sendRequest(Command{Command: "edit", Args: []string{p.Note}}, who)
-		}
-	case "list":
-		{
-
-			for _, addr := range command.Args {
-				if addr == p.Self.toString() {
+				if peer.toString() == p.Self.toString() {
 					continue
 				}
-				peer := NetworkPeer{}
-				peer.fromString(addr)
-				p.Peers = append(p.Peers, &peer)
-				p.sendRequest(Command{Command: "add", Args: []string{p.Self.toString()}}, peer)
+
+				p.broadcast(Command{
+					Command: "add",
+					Args:    command.Args,
+				})
 			}
+
+			p.sendRequest(Command{
+				Command: "accept",
+				Args:    p.getPeersList(),
+			}, from)
+
+			p.sendRequest(Command{
+				Command: "add",
+				Args:    command.Args,
+			}, p.Self)
+		}
+	case "accept":
+		{
+			for _, peer := range p.Peers {
+				if peer.toString() == p.Self.toString() {
+					continue
+				}
+
+				p.broadcast(Command{
+					Command: "add",
+					Args:    command.Args,
+				})
+			}
+
+			p.sendRequest(Command{
+				Command: "add",
+				Args:    command.Args,
+			}, p.Self)
 		}
 	case "add":
 		{
+			peerList := command.Args
+
+			for _, newPeerAddress := range peerList {
+				new := true
+				for _, peer := range p.Peers {
+					if peer.toString() == newPeerAddress {
+						new = false
+						break
+					}
+				}
+
+				if !new {
+					continue
+				}
+
+				newPeer := stringToNetworkPeer(newPeerAddress)
+				p.Peers = append(p.Peers, &newPeer)
+
+				//
+				p.addWebSocketPeer(&newPeer)
+			}
+		}
+	}
+}
+
+func (p *Peer) handlePeerCommands(from string, command Command) {
+	who := stringToNetworkPeer(from)
+
+	switch command.Command {
+	case "connect", "accept", "add":
+		{
+			p.handleTopologyMerge(who, command)
+		}
+	case "disconnect":
+		{
+			newPeerList := []*NetworkPeer{}
 			for _, peer := range p.Peers {
-				if peer.toString() == command.Args[0] {
-					return
+				if peer.toString() != from {
+					newPeerList = append(newPeerList, peer)
 				}
 			}
-
-			p.Peers = append(p.Peers, &who)
-			p.addWsPeer(&who)
+			p.Peers = newPeerList
 		}
-	// основные операции с пиром
 	case "edit":
 		{
 			p.Note = strings.Join(command.Args, " ")
@@ -164,18 +228,22 @@ func (p *Peer) handleCommands(from string, command Command) {
 	}
 }
 
-func (p *Peer) handleRequests(conn *net.TCPConn) {
+func (p *Peer) handlePeerRequest(conn *net.TCPConn) {
 	defer conn.Close()
 
-	buf := bufio.NewReader(conn)
-	data, err := buf.ReadString('\n')
+	buffer := bufio.NewReader(conn)
+
+	data, err := buffer.ReadString('\n')
 	if err != nil {
 		return
 	}
+
 	data = strings.TrimSpace(data)
 
-	var req Request
-	var command Command
+	var (
+		command Command
+		req     Request
+	)
 
 	err = json.Unmarshal([]byte(data), &req)
 	if err != nil {
@@ -187,13 +255,13 @@ func (p *Peer) handleRequests(conn *net.TCPConn) {
 		return
 	}
 
-	p.handleCommands(req.From, command)
+	p.handlePeerCommands(req.From, command)
 }
 
 func (p *Peer) handlePeers() {
 	for {
 		if conn, err := p.Server.AcceptTCP(); err == nil {
-			go p.handleRequests(conn)
+			go p.handlePeerRequest(conn)
 		}
 	}
 }
@@ -212,14 +280,17 @@ func (p *Peer) sendRequest(data interface{}, who NetworkPeer) {
 		From: p.Self.toString(),
 		Data: &raw,
 	})
+
 	if err != nil {
 		return
 	}
 
 	conn, err := net.Dial("tcp", who.toString())
+
 	if err != nil {
 		return
 	}
+
 	defer conn.Close()
 
 	fmt.Fprintln(conn, string(request))
@@ -241,22 +312,22 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-func (p *Peer) sendWsMessage(ws *websocket.Conn, data string) {
-	_ = ws.WriteMessage(websocket.TextMessage, []byte(data))
+func (p *Peer) sendWebSocketMessage(webSocket *websocket.Conn, data string) {
+	_ = webSocket.WriteMessage(websocket.TextMessage, []byte(data))
 }
 
-func (p *Peer) addWsPeer(peer *NetworkPeer) {
-	peerWs := peer.getWsAddress()
-	message := fmt.Sprintf("$c:%s", peerWs.toString())
+func (p *Peer) addWebSocketPeer(peer *NetworkPeer) {
+	peerWebSocket := peer.getWebSocketAddress()
+	message := fmt.Sprintf("$c:%s", peerWebSocket.toString())
 
 	for _, callback := range p.Callbacks {
-		p.sendWsMessage(callback, message)
+		p.sendWebSocketMessage(callback, message)
 	}
 }
 
-func (p *Peer) handleWsRequests(ws *websocket.Conn) {
+func (p *Peer) handleWebSocketRequests(webSocket *websocket.Conn) {
 	for {
-		_, messageContent, err := ws.ReadMessage()
+		_, messageContent, err := webSocket.ReadMessage()
 		if err != nil {
 			return
 		}
@@ -264,16 +335,16 @@ func (p *Peer) handleWsRequests(ws *websocket.Conn) {
 		switch content := string(messageContent); content {
 		case "connect":
 			{
-				p.Callbacks = append(p.Callbacks, ws)
+				p.Callbacks = append(p.Callbacks, webSocket)
 				for _, peer := range p.Peers {
-					p.addWsPeer(peer)
+					p.addWebSocketPeer(peer)
 				}
 			}
 		case "callback":
 			{
-				p.Callbacks = append(p.Callbacks, ws)
+				p.Callbacks = append(p.Callbacks, webSocket)
 				if p.Note != "" {
-					p.sendWsMessage(ws, p.Note)
+					p.sendWebSocketMessage(webSocket, p.Note)
 				}
 			}
 		}
@@ -312,8 +383,8 @@ func (p *Peer) handleWebsocket(ipAddress string, port int) {
 	http.HandleFunc("/", p.HomeRouterHandler)
 
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
-		if ws, err := upgrader.Upgrade(w, r, nil); err == nil {
-			p.handleWsRequests(ws)
+		if webSocket, err := upgrader.Upgrade(w, r, nil); err == nil {
+			p.handleWebSocketRequests(webSocket)
 		}
 	})
 
@@ -338,11 +409,19 @@ func (p *Peer) executeCommand(command Command) {
 				break
 			}
 
-			if len(p.Peers) <= 1 {
-				p.sendRequest(
-					Command{Command: "peers"},
-					NetworkPeer{netAddress, netPort},
-				)
+			p.sendRequest(
+				Command{
+					Command: "connect",
+					Args:    p.getPeersList(),
+				},
+				NetworkPeer{netAddress, netPort},
+			)
+		}
+	case "disconnect":
+		{
+			if len(p.Peers) > 1 {
+				p.broadcast(command)
+				p.Peers = []*NetworkPeer{&p.Self}
 			}
 		}
 	case "edit":
@@ -374,12 +453,20 @@ func NewPeer(ipAddress string, peerPort int) (*Peer, error) {
 	}, nil
 }
 
+func (p *Peer) cleanup() {
+	p.executeCommand(
+		Command{
+			Command: "disconnect",
+		},
+	)
+}
+
 func main() {
 	var peerPort int
 	var ipAddress string
 
 	flag.IntVar(&peerPort, "p", 1337, "Provide peer port")
-	flag.StringVar(&ipAddress, "addr", "127.0.0.1", "Provide ip address")
+	flag.StringVar(&ipAddress, "addr", "localhost", "Provide ip address")
 	flag.Parse()
 
 	peer, err := NewPeer(ipAddress, peerPort)
@@ -387,14 +474,25 @@ func main() {
 		return
 	}
 
-	go peer.handleWebsocket(ipAddress, wsPort(peerPort))
+	go peer.handleWebsocket(ipAddress, calculateWebSocketPort(peerPort))
 	go peer.handlePeers()
 
-	fmt.Printf("HTTP server: http://%s\n", peer.Self.getWsAddress().toString())
+	// Ctrl+C interrupt handler with cleanup
+	c := make(chan os.Signal, 2)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-c
+		peer.cleanup()
+		os.Exit(0)
+	}()
+
+	defer peer.cleanup()
+
+	fmt.Printf("HTTP server: http://%s\n", peer.Self.getWebSocketAddress().toString())
 
 	reader := bufio.NewReader(os.Stdin)
 	for {
-		fmt.Print("Enter command: ")
+		fmt.Print(": ")
 		text, _ := reader.ReadString('\n')
 		if text = strings.TrimSpace(text); len(text) == 0 {
 			continue
@@ -403,7 +501,7 @@ func main() {
 		switch s := strings.Split(text, " "); s[0] {
 		case "exit", "quit":
 			return
-		case "connect", "edit":
+		case "connect", "edit", "disconnect":
 			peer.executeCommand(Command{
 				Command: s[0],
 				Args:    s[1:],
