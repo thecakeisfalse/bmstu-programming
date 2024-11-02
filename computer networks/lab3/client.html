@@ -4,6 +4,7 @@
     <meta charset="utf8">
     <script>
         var sockets = [null]
+        var addr = [null]
 
         function new_ws(address) {
             var ws = new WebSocket("ws://"+address+"/ws")
@@ -12,8 +13,11 @@
             ws.onopen = function (_) {
                 ws.send("callback")
                 var newp = document.createElement("p")
+                var a = document.createElement("p")
                 newp.id = "id"+ws.id
+                a.appendChild(document.createTextNode(addr[ws.id]))
                 newp.appendChild(document.createTextNode("data"))
+                document.getElementById("data").appendChild(a)
                 document.getElementById("data").appendChild(newp)
             }
 
@@ -40,6 +44,7 @@
             }
 
             sockets[0] = new WebSocket("ws://"+ip.value+":"+port.value+"/ws")
+            addr[0] = ip.value+":"+port.value
 
             port.hidden = ip.hidden = true
             document.getElementById("btn").hidden = true
@@ -51,8 +56,9 @@
             sockets[0].onmessage = function(event) {
                 if (event.data.slice(0, 3) === "$c:") {
                     let address = event.data.slice(3).trim()
+                    addr.push(address)
                     sockets.push(new_ws(address))
-                    console.log(address)
+                    console.log(address, addr)
                 }
             };
         }
