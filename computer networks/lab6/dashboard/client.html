@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Client</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        #messages {
+            width: 80%;
+            max-width: 600px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            height: 400px;
+            overflow-y: scroll;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="messages"></div>
+    <script>
+        const socket = new WebSocket("ws://localhost:7331/ws");
+
+        const messagesContainer = document.getElementById("messages");
+
+        socket.onopen = function () {
+            console.log("Connected to WebSocket server");
+        };
+
+        socket.onmessage = function (event) {
+            console.log("Message from server ", event.data);
+            addMessage(event.data);
+        };
+
+        socket.onclose = function (event) {
+            console.log("Connection closed");
+        };
+
+        socket.onerror = function (error) {
+            console.error("WebSocket Error: ", error);
+            addMessage("Ошибка: " + error.message);
+        };
+
+        function addMessage(message) {
+            const messageElement = document.createElement("div");
+            messageElement.textContent = message;
+            messagesContainer.appendChild(messageElement);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+    </script>
+</body>
+
+</html>
