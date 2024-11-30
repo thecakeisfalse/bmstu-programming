@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Отправка письма</title>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f0f0f0;
+      flex-direction: column;
+      margin: 0;
+    }
+
+    .container {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .error {
+      color: red;
+      margin-top: 10px;
+    }
+
+
+    #messages {
+        width: 80%;
+        max-width: 600px;
+        border: 1px solid #ddd;
+        padding: 10px;
+        height: 400px;
+        overflow-y: scroll;
+        margin-bottom: 20px;
+        background-color: #f9f9f9;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h2 class="text-center">Отправка письма</h2>
+    <form id="emailForm">
+      <div class="form-group">
+        <label for="subject">Заголовок:</label>
+        <input type="text" class="form-control" id="subject" name="subject" required>
+      </div>
+      <div class="form-group">
+        <label for="to">Кому:</label>
+        <input type="email" class="form-control" id="to" name="to" required>
+      </div>
+      <div class="form-group">
+        <label for="message">Сообщение:</label>
+        <textarea class="form-control" id="message" name="message" rows="10" required></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Отправить</button>
+    </form>
+    <div id="error" class="error" style="display: none;"></div>
+
+    <div id="messages"></div>
+  </div>
+
+  <script>
+    const socket = new WebSocket("ws://localhost:8080/ws");
+
+    const messagesContainer = document.getElementById("messages");
+
+    socket.onmessage = function (event) {
+      console.log("Message from server ", event.data);
+      addMessage(event.data);
+    };
+
+    socket.onclose = function (event) {
+      console.log("Connection closed");
+    };
+
+    socket.onerror = function (error) {
+      console.error("WebSocket Error: ", error);
+      addMessage("Ошибка: " + error.message);
+    };
+
+    function addMessage(message) {
+      const messageElement = document.createElement("div");
+      messageElement.textContent = message;
+      messagesContainer.appendChild(messageElement);
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+    
+    document.getElementById('emailForm').addEventListener('submit', function (event) {
+      event.preventDefault();
+      const subject = document.getElementById('subject').value;
+      const to = document.getElementById('to').value;
+      const message = document.getElementById('message').value;
+      const errorDiv = document.getElementById('error');
+
+      fetch('/api/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ subject, to, message })
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success === "true") {
+            // alert('Письмо успешно отправлено!');
+          } else {
+            errorDiv.textContent = data.message;
+            errorDiv.style.display = 'block';
+          }
+        })
+        .catch(error => {
+          errorDiv.textContent = 'Ошибка сервера';
+          errorDiv.style.display = 'block';
+        });
+    });
+  </script>
+</body>
+
+</html>
