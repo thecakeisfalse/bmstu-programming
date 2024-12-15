@@ -1,0 +1,5 @@
+{
+    "metamask": "Insert metamask token here",
+    "firedb": "Insert link to Firebase real-time database",
+    "fireauth": "Auth API token"
+}

@@ -35,6 +35,7 @@
 !*.css
 !*.js
 !*.py
+!*.example
 
 # LLP files
 !*.inc
