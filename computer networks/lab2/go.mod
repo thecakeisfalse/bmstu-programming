@@ -4,7 +4,7 @@ go 1.23.2
 
 require (
 	github.com/mgutz/logxi v0.0.0-20161027140823-aebf8a7d67ab
-	golang.org/x/net v0.30.0
+	golang.org/x/net v0.33.0
 )
 
 require (
