@@ -368,7 +368,7 @@ _Type_code_cons:
         call screen_putchar
     endm
 
-    irpc ch, <consistent>
+    irpc ch, <conforming>
         mov al, '&ch&'
         call screen_putchar
     endm
