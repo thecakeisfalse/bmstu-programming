@@ -42,3 +42,8 @@
 !*.asm
 !*.tasm
 !Makefile
+
+# ACG files
+!*.zig
+!*.zig.zon
+**/*zig-cache
