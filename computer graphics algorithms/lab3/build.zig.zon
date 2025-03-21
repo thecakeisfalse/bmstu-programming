@@ -1,9 +1,9 @@
 .{
-    .name = .lab1,
+    .name = .lab3,
 
     .version = "0.0.0",
 
-    .fingerprint = 0x1fb43faf7cd48935,
+    .fingerprint = 0xf1ba5e83ef85eec7,
 
     .minimum_zig_version = "0.14.0",
 
