@@ -1,0 +1,26 @@
+.{
+    .name = .lab4,
+
+    .version = "0.0.0",
+
+    .minimum_zig_version = "0.14.0",
+
+    .fingerprint = 0x6fdecb20fca230ec,
+
+    .dependencies = .{
+        .zglfw = .{
+            .url = "https://github.com/IridescenceTech/zglfw/archive/91e1489ce0032485f02a29902ac5aae9dead6e7a.tar.gz",
+            .hash = "1220f863540d2c2ae8b8345ec33df146ecb2ace77702c2d4c232d868862edb397ddd",
+        },
+        .zigglgen = .{
+            .url = "https://github.com/castholm/zigglgen/archive/1c901bef6d312ef1814b8fce3c5a9e9e8e61ac2d.tar.gz",
+            .hash = "12209d8a018832bee15d9da29a12fa753d89b56cd843cdf1f39501546c6467e38ba1",
+        },
+    },
+
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+    },
+}
