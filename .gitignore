@@ -6,6 +6,10 @@
 !*.gitignore
 !*.gitkeep
 
+# Dependencies
+!*.nix
+!*.envrc
+
 # Reports
 !*.pdf
 !*.jpg
@@ -47,3 +51,6 @@
 !*.zig
 !*.zig.zon
 **/*zig-cache
+!*.cc
+!CMakeLists.txt
+
