@@ -54,3 +54,9 @@
 !*.cc
 !CMakeLists.txt
 
+# OS files
+!*.rc
+!*.c
+!CMakeLists.txt
+!Makefile
+
