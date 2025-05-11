@@ -2,12 +2,14 @@
 with pkgs;
   mkShell {
     buildInputs = [
-      boost.dev
-      glfw
-      cmake
-      gcc
-
       zig
+
+      libGL
+      libGLU
+      freeglut
+      glfw
+
+      boost.dev
 
       bashInteractive
     ];

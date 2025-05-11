@@ -8,7 +8,7 @@
 
 # Dependencies
 !*.nix
-!*.envrc
+!.envrc
 
 # Reports
 !*.pdf
@@ -52,7 +52,8 @@
 !*.zig.zon
 **/*zig-cache
 !*.cc
-!CMakeLists.txt
+**/.direnv
+!*.clang-format
 
 # OS files
 !*.rc

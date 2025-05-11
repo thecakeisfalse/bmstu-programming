@@ -29,9 +29,7 @@ struct PolygonData {
 
 PolygonData data;
 
-bool pointsEqual(const Point& a, const Point& b) {
-    return bg::distance(a, b) < EPSILON;
-}
+bool pointsEqual(const Point& a, const Point& b) { return bg::distance(a, b) < EPSILON; }
 
 void findAllIntersections(
     const std::vector<Point>& poly1, const std::vector<Point>& poly2,
@@ -62,10 +60,8 @@ void findAllIntersections(
                     }
                 }
 
-                if (!pointsEqual(output[0], a1) &&
-                    !pointsEqual(output[0], a2) &&
-                    !pointsEqual(output[0], b1) &&
-                    !pointsEqual(output[0], b2) && !alreadyExists) {
+                if (!pointsEqual(output[0], a1) && !pointsEqual(output[0], a2) &&
+                    !pointsEqual(output[0], b1) && !pointsEqual(output[0], b2) && !alreadyExists) {
                     intersection_points.push_back(output[0]);
                 }
             }
@@ -170,9 +166,7 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
     }
 }
 
-void keyCallback(
-    GLFWwindow* window, int key, int scancode, int action, int mods
-) {
+void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (action != GLFW_PRESS) {
         return;
     }
