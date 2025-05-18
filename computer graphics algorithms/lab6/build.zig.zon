@@ -1,0 +1,11 @@
+.{
+    .name = .lab6,
+    .version = "0.0.0",
+    .fingerprint = 0x81d0aa0c6e18d0fc,
+    .minimum_zig_version = "0.14.0",
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+    },
+}

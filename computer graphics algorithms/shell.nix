@@ -6,8 +6,8 @@ with pkgs;
 
       libGL
       libGLU
-      freeglut
       glfw
+      glew
 
       boost.dev
 

@@ -9,6 +9,7 @@ AllowShortIfStatementsOnASingleLine: Never
 AllowShortLoopsOnASingleLine: false
 ColumnLimit: 100
 Cpp11BracedListStyle: false
+DerivePointerAlignment: false
 IncludeCategories:
   - Regex: "'[<\"]stdafx.h'"
     Priority: -1
@@ -31,6 +32,7 @@ IndentWidth: 4
 InsertBraces: true
 NamespaceIndentation: All
 PackConstructorInitializers: BinPack
+ReferenceAlignment: Left
 RemoveSemicolon: true
 SortIncludes: Never
 SpaceAfterCStyleCast: true
