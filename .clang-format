@@ -10,23 +10,6 @@ AllowShortLoopsOnASingleLine: false
 ColumnLimit: 100
 Cpp11BracedListStyle: false
 DerivePointerAlignment: false
-IncludeCategories:
-  - Regex: "'[<\"]stdafx.h'"
-    Priority: -1
-    CaseSensitive: false
-    SortPriority: 0
-  - Regex: "'^<.*'"
-    Priority: 1
-    CaseSensitive: false
-    SortPriority: 0
-  - Regex: "'[<\"].*(/|\\\\).*'"
-    Priority: 2
-    CaseSensitive: false
-    SortPriority: 0
-  - Regex: "'.*'"
-    Priority: 3
-    CaseSensitive: false
-    SortPriority: 0
 IncludeIsMainSourceRegex: "'$?'"
 IndentWidth: 4
 InsertBraces: true
