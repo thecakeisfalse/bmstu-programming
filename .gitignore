@@ -61,3 +61,7 @@
 !CMakeLists.txt
 !Makefile
 
+# PP files
+!Cargo.toml
+!*.rs
+
