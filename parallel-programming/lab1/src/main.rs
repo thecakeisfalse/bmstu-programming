@@ -1,4 +1,4 @@
-use lab1::Matrix;
+use lab1::{FlatMatrix, Matrix};
 
 fn rand_matrix_i32(n: usize) -> Matrix<i32> {
     use rand::random_range as rng;
@@ -7,7 +7,7 @@ fn rand_matrix_i32(n: usize) -> Matrix<i32> {
 
     for i in 0..n {
         for j in 0..n {
-            ans[i][j] = rng(0..1000);
+            ans[i][j] = rng(1..1000);
         }
     }
 
@@ -61,9 +61,31 @@ fn main() {
         c
     };
 
+    let c_6 = {
+        let a: FlatMatrix<_> = a.clone().into();
+        let b: FlatMatrix<_> = b.clone().into();
+        let now = Instant::now();
+        let c = a.multiply(&b);
+        let elapsed = now.elapsed();
+        println!("multiply (flat matrix): {elapsed:.2?}");
+        c.into()
+    };
+
+    let c_7 = {
+        let a: FlatMatrix<_> = a.clone().into();
+        let b: FlatMatrix<_> = b.clone().into();
+        let now = Instant::now();
+        let c = a.multiply_threads(&b);
+        let elapsed = now.elapsed();
+        println!("multiply_threads (flat matrix): {elapsed:.2?}");
+        c.into()
+    };
+
+    let c = [c_1, c_2, c_3, c_4, c_5, c_6, c_7];
+
     println!(
         "{}",
-        if c_1 == c_2 && c_2 == c_3 && c_3 == c_4 && c_4 == c_5 {
+        if c.iter().all(|x| *x == c[0]) {
             "CORRECT"
         } else {
             "INCORRECT"

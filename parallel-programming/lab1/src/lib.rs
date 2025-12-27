@@ -1,6 +1,6 @@
 use std::fmt::Debug;
 use std::marker::{Send, Sync};
-use std::ops::{AddAssign, Deref, DerefMut, Mul};
+use std::ops::{AddAssign, Deref, DerefMut, Index, IndexMut, Mul};
 use std::sync::{Arc, Mutex};
 use std::thread;
 
@@ -18,29 +18,30 @@ pub fn is_vec_slice_squared<T>(data: &[Vec<T>]) -> bool {
     data.iter().all(|v| v.len() == data.len())
 }
 
-const THREADS_COUNT: usize = 15;
+const THREADS_COUNT: usize = 16;
 
 #[derive(Default, Debug, PartialEq)]
 pub struct Matrix<T: Number<T>>(Vec<Vec<T>>);
 
-impl<T> Matrix<T>
-where
-    T: Number<T>,
-{
+impl<T: Number<T>> Matrix<T> {
     pub fn new(n: usize) -> Self {
         Self(vec![vec![T::default(); n]; n])
     }
 
-    pub fn is_square_matrix(&self) -> bool {
+    fn is_square_matrix(&self) -> bool {
         !self.is_empty() && is_vec_slice_squared(&self[..])
+    }
+
+    pub fn size(&self) -> usize {
+        self.len()
     }
 
     pub fn multiply_by_rows(&self, other: &Self) -> Self {
         assert!(self.is_square_matrix());
         assert!(other.is_square_matrix());
-        assert_eq!(self.len(), other.len());
+        assert_eq!(self.size(), other.size());
 
-        let n = self.len();
+        let n = self.size();
         let mut ans = Self::new(n);
 
         for i in 0..n {
@@ -57,9 +58,9 @@ where
     pub fn multiply_by_cols(&self, other: &Self) -> Self {
         assert!(self.is_square_matrix());
         assert!(other.is_square_matrix());
-        assert_eq!(self.len(), other.len());
+        assert_eq!(self.size(), other.size());
 
-        let n = self.len();
+        let n = self.size();
         let mut ans = Self::new(n);
 
         for j in 0..n {
@@ -76,9 +77,9 @@ where
     pub fn multiply_threads(&self, other: &Self) -> Self {
         assert!(self.is_square_matrix());
         assert!(other.is_square_matrix());
-        assert_eq!(self.len(), other.len());
+        assert_eq!(self.size(), other.size());
 
-        let n = self.len();
+        let n = self.size();
         let ans = Arc::new(Mutex::new(Self::new(n)));
 
         let block_size = (n - 1 + THREADS_COUNT) / THREADS_COUNT;
@@ -118,9 +119,9 @@ where
     pub fn multiply_unsafe(&self, other: &Self) -> Self {
         assert!(self.is_square_matrix());
         assert!(other.is_square_matrix());
-        assert_eq!(self.len(), other.len());
+        assert_eq!(self.size(), other.size());
 
-        let n = self.len();
+        let n = self.size();
 
         let mut other_transpose = Self::new(n);
 
@@ -158,9 +159,9 @@ where
     pub fn multiply_unsafe_threads(&self, other: &Self) -> Self {
         assert!(self.is_square_matrix());
         assert!(other.is_square_matrix());
-        assert_eq!(self.len(), other.len());
+        assert_eq!(self.size(), other.size());
 
-        let n = self.len();
+        let n = self.size();
         let ans = Arc::new(Mutex::new(Self::new(n)));
 
         let block_size = (n - 1 + THREADS_COUNT) / THREADS_COUNT;
@@ -220,12 +221,14 @@ where
 impl<T: Number<T>> Deref for Matrix<T> {
     type Target = Vec<Vec<T>>;
 
+    #[inline(always)]
     fn deref(&self) -> &Self::Target {
         &self.0
     }
 }
 
 impl<T: Number<T>> DerefMut for Matrix<T> {
+    #[inline(always)]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }
@@ -234,6 +237,188 @@ impl<T: Number<T>> DerefMut for Matrix<T> {
 impl<T: Number<T>> From<Vec<Vec<T>>> for Matrix<T> {
     fn from(data: Vec<Vec<T>>) -> Self {
         Self(data)
+    }
+}
+
+#[derive(Default, Debug, PartialEq)]
+pub struct FlatMatrix<T: Number<T>> {
+    data: Vec<T>,
+    size: usize,
+}
+
+impl<T: Number<T>> FlatMatrix<T> {
+    pub fn new(n: usize) -> Self {
+        Self {
+            data: vec![T::default(); n * n],
+            size: n,
+        }
+    }
+
+    pub fn size(&self) -> usize {
+        self.size
+    }
+
+    pub fn multiply(&self, other: &Self) -> Self {
+        assert_eq!(self.len(), other.len());
+
+        let n = self.size();
+        let mut other_transpose = Self::new(n);
+
+        for i in 0..n {
+            for j in 0..n {
+                unsafe {
+                    *other_transpose.get_unchecked_mut(i * n + j) = *other.get_unchecked(j * n + i);
+                }
+            }
+        }
+
+        let mut ans = Self::new(n);
+
+        for i in 0..n {
+            for j in 0..n {
+                let mut sum = T::default();
+
+                for k in 0..n {
+                    unsafe {
+                        sum += *self.get_unchecked(i * n + k)
+                            * *other_transpose.get_unchecked(j * n + k);
+                    }
+                }
+
+                unsafe {
+                    *ans.get_unchecked_mut(i * n + j) = sum;
+                }
+            }
+        }
+
+        ans
+    }
+
+    pub fn multiply_threads(&self, other: &Self) -> Self {
+        assert_eq!(self.len(), other.len());
+
+        let n = self.size();
+        let ans = Arc::new(Mutex::new(Self::new(n)));
+
+        let block_size = (n - 1 + THREADS_COUNT) / THREADS_COUNT;
+
+        let mut other_transpose = Self::new(n);
+
+        for i in 0..n {
+            for j in 0..n {
+                unsafe {
+                    *other_transpose.get_unchecked_mut(i * n + j) = *other.get_unchecked(j * n + i);
+                }
+            }
+        }
+
+        let other_transpose = Arc::from(other_transpose);
+
+        thread::scope(|s| {
+            let handles: Vec<_> = (0..THREADS_COUNT)
+                .map(|i| (i * block_size, n.min((i + 1) * block_size)))
+                .map(|(start, end)| {
+                    let ans = ans.clone();
+                    let other_transpose = other_transpose.clone();
+
+                    s.spawn(move || {
+                        for i in start..end {
+                            for j in 0..n {
+                                let mut sum = T::default();
+                                for k in 0..n {
+                                    unsafe {
+                                        sum += *self.get_unchecked(i * n + k)
+                                            * *other_transpose.get_unchecked(j * n + k);
+                                    }
+                                }
+                                let mut ans = ans.lock().unwrap();
+                                unsafe {
+                                    *ans.get_unchecked_mut(i * n + j) = sum;
+                                }
+                            }
+                        }
+                    })
+                })
+                .collect();
+
+            handles
+                .into_iter()
+                .for_each(|handle| handle.join().unwrap());
+        });
+
+        Arc::try_unwrap(ans)
+            .expect("Threads still have references")
+            .into_inner()
+            .expect("Mutex is poisoned")
+    }
+}
+
+impl<T: Number<T>> Index<(usize, usize)> for FlatMatrix<T> {
+    type Output = T;
+
+    #[inline]
+    fn index(&self, (i, j): (usize, usize)) -> &Self::Output {
+        &self.data[i * self.size + j]
+    }
+}
+
+impl<T: Number<T>> IndexMut<(usize, usize)> for FlatMatrix<T> {
+    #[inline]
+    fn index_mut(&mut self, (i, j): (usize, usize)) -> &mut Self::Output {
+        &mut self.data[i * self.size + j]
+    }
+}
+
+impl<T: Number<T>> Deref for FlatMatrix<T> {
+    type Target = Vec<T>;
+
+    #[inline]
+    fn deref(&self) -> &Self::Target {
+        &self.data
+    }
+}
+
+impl<T: Number<T>> DerefMut for FlatMatrix<T> {
+    #[inline]
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.data
+    }
+}
+
+impl<T: Number<T>> From<Matrix<T>> for FlatMatrix<T> {
+    fn from(mat: Matrix<T>) -> Self {
+        let n = mat.len();
+        let mut fast_mat = FlatMatrix::new(n);
+
+        for i in 0..n {
+            for j in 0..n {
+                fast_mat[(i, j)] = mat[i][j];
+            }
+        }
+
+        fast_mat
+    }
+}
+
+impl<T: Number<T>> From<FlatMatrix<T>> for Matrix<T> {
+    fn from(fast_mat: FlatMatrix<T>) -> Self {
+        let n = fast_mat.size();
+        let mut mat = Matrix::new(n);
+
+        for i in 0..n {
+            for j in 0..n {
+                mat[i][j] = fast_mat[(i, j)];
+            }
+        }
+
+        mat
+    }
+}
+
+impl<T: Number<T>> From<Vec<Vec<T>>> for FlatMatrix<T> {
+    fn from(data: Vec<Vec<T>>) -> Self {
+        let m: Matrix<_> = data.into();
+        m.into()
     }
 }
 

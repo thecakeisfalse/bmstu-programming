@@ -15,5 +15,13 @@ rand = "0.9.2"
 name = "product"
 harness = false
 
-[profile.release]
+[profile.bench]
 debug = true
+
+[profile.junk]
+inherits = "release"
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+overflow-checks = false
+debug-assertions = false
