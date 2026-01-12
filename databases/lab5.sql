@@ -1,0 +1,99 @@
+USE master;
+GO
+IF DB_ID (N'LLM_DB') IS NOT NULL
+DROP DATABASE LLM_DB;
+GO
+
+CREATE DATABASE LLM_DB
+ON PRIMARY
+(
+  NAME = lab5dat,
+  FILENAME = '/var/opt/mssql/data/lab5.mdf',
+  SIZE = 10,
+  MAXSIZE = UNLIMITED,
+  FILEGROWTH = 5%
+)
+LOG ON
+(
+  NAME = lab5log,
+  FILENAME = '/var/opt/mssql/data/lab5log.ldf',
+  SIZE = 5MB,
+  MAXSIZE = 25MB,
+  FILEGROWTH = 5MB
+)
+GO
+
+--
+
+USE LLM_DB;
+
+IF OBJECT_ID(N'USERS') IS NOT NULL
+  DROP TABLE USERS;
+
+CREATE TABLE USERS(
+  user_id int PRIMARY KEY,
+  email nvarchar(100) UNIQUE NOT NULL,
+  phone_number char(10) NOT NULL,
+  registration_date datetime NOT NULL DEFAULT(GETDATE())
+);
+
+--
+
+ALTER DATABASE LLM_DB
+ADD FILEGROUP LLM_Filegroup;
+GO
+
+ALTER DATABASE LLM_DB
+ADD FILE
+(
+  NAME = lab5user,
+  FILENAME = '/var/opt/mssql/data/lab5_user.ndf',
+  SIZE = 10MB,
+  MAXSIZE = UNLIMITED,
+  FILEGROWTH = 5%
+)
+TO FILEGROUP LLM_Filegroup;
+GO
+
+--
+
+ALTER DATABASE LLM_DB
+MODIFY FILEGROUP LLM_Filegroup DEFAULT;
+
+--
+
+IF OBJECT_ID(N'SUBSCRIPTION') IS NOT NULL
+  DROP TABLE SUBSCRIPTION;
+
+CREATE TABLE SUBSCRIPTION(
+  subscription_id int PRIMARY KEY,
+  subscription_tier nvarchar(100) UNIQUE NOT NULL,
+  monthly_tokens_limit int NOT NULL,
+  price int NOT NULL,
+);
+
+-- 
+
+ALTER DATABASE LLM_DB
+  MODIFY FILEGROUP [primary] DEFAULT;
+
+DROP TABLE SUBSCRIPTION;
+
+ALTER DATABASE LLM_DB
+  REMOVE FILE lab5user;
+
+ALTER DATABASE LLM_DB
+  REMOVE FILEGROUP LLM_Filegroup;
+
+GO
+
+--
+
+CREATE SCHEMA LLM_SCHEMA;
+GO
+
+ALTER SCHEMA LLM_SCHEMA TRANSFER dbo.Users;
+
+DROP TABLE LLM_SCHEMA.Users;
+
+DROP SCHEMA LLM_SCHEMA;
