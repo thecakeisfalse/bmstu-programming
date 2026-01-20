@@ -1,0 +1,181 @@
+\documentclass[a4paper, 12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage[english,russian]{babel}
+\usepackage{amsmath, amsfonts, amsthm, amssymb, mathtools}
+\usepackage{multicol}
+\usepackage{enumitem}
+\usepackage{cancel}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks,
+    linkcolor={black},
+    citecolor={black},
+    urlcolor={blue},
+}
+\usepackage{indentfirst}
+
+\newcommand{\T}{\mathcal{T}}
+\newcommand{\w}{\omega}
+\newcommand{\rev}{\operatorname{rev}}
+
+\title{Лабораторная работа №1}
+\author{Чайкин Семён\\Вариант 26}
+
+\begin{document}
+    \maketitle
+    \tableofcontents
+    \newpage
+
+    \section{Задание}    
+
+    Дана SRS $\T$:
+
+    \begin{gather*}
+        ab  \to br\\
+        raa \to dr\\
+        ara \to ad\\
+        da  \to aad\\
+        dd  \to abdar 
+    \end{gather*}
+
+    По имеющейся SRS определить:
+
+    \begin{itemize}
+        \itemsep -0.8pt
+        \item[---] завершимость;
+        \item[---] конечность классов эквивалентности по НФ;
+        \item[---] локальную конфлюэнтность и пополняемость по Кнуту-Бендиксу.
+    \end{itemize}
+
+    \section{Исследование SRS}
+
+    \subsection{Завершимость}
+
+    \textbf{Без понятия}.
+    
+    \subsection{Классы эквивалентности}
+
+    Рассмотрим слова $b^n$ ($n \geq 1$) --- каждое из них является НФ. Очевидно, что каждое подобное слово лежит в собственном классе эквивалентности, так как при любой направлении стрелок в SRS, не существует правил для переписывания строк состоящих только из символа $b$. Таким образом, в $\T$ \textbf{бесконечное} количество классов эквивалентности.
+
+    \subsection{Локальная конфлюэнтность и пополнимость}
+
+    \subsubsection{Переупорядочивание правил}
+
+    Переориентируем правила, чтобы задать фундированный порядок. Рассмотрим, например, следующую SRS:
+
+    \begin{gather*}
+    br    \to ab\\
+    raa   \to dr\\
+    ara   \to ad\\
+    aad   \to da\\
+    abdar \to dd
+    \end{gather*}
+
+    Эта SRS завершима, так как каждое правило уменьшает длину слова.
+    
+    \textbf{Фундированный порядок}: length-lexicographic (\textit{армейский}), где $a < b < d < r$.
+
+    \subsubsection{Проверка локальной конфлюэнтности}
+
+    Рассмотрим слово $braa$:
+
+    \begin{gather*}
+        \underset{ab}{\underline{br}} aa \to abaa\\
+        b\underset{dr}{\underline{raa}} \to bdr
+    \end{gather*}
+
+    Получившиеся справа слова являются НФ. Как мы видим, SRS \textbf{не является} локально конфлюэнтной.
+
+    \subsubsection{Пополняемость по Кнуту-Бендиксу}
+
+    Рассмотрим два правила из $\T$: $raa \to dr$ и $aad \to da$ --- они формируют критическую пару $\langle \mathbf{dr}ad, ra\mathbf{da} \rangle$, получаемую переписыванием строки $raaad$. Обе части пары нельзя редуцировать дальше, поэтому добавляем в систему новое правило $rada \to drad$.
+
+    Рассмотрим теперь правила $ara \to ad$ и $rada \to drad$. Они тоже формируют критическую пару $\langle \mathbf{ad}da, a\mathbf{drad} \rangle$, получаемую переписыванием строки $arada$. Обе части пары нельзя редуцировать дальше, поэтому добавляем в систему новое правило $adrad \to adda$.
+
+    Рассмотрим правила $rada \to drad$ и $adrad \to adda$. Они формируют критическую пару $\langle ad\mathbf{drad}, \mathbf{addaa} \rangle$, получаемую переписыванием строки $adrada$. Обе части пары нельзя редуцировать дальше, поэтому добавляем новое правило $addrad \to addaa$.
+
+    Заметим, что если повторно рассмотреть только что получившееся правило $ad^2rad \to adda^2$ с правилом $rada \to drad$, мы получим новое правило $ad^3 rad \to adda^3$. Продолжая эту процедуру для правил $rada \to drad$ и $ad^nrad \to adda^n$ ($n \geq 1$), получаем новое правило $ad^{n+1}rad \to adda^{n+1}$, которое также нельзя редуцировать, поэтому систему $\tilde{\T}$ можно пополнять до бесконечности. Таким образом, система является непополнимой по Кнуту-Бендиксу при указанной выше стратегии выбора критических пар. 
+
+    При этом из работы \href{https://github.com/ElizaaaSh/TFL}{@ElizaaaSh} видно, что система является пополнимой при выборе другой стратегии.
+
+    \subsection{Построение $\T'$}
+
+    На основе исследования SRS $\tilde{\T}$ была построена эквивалентная ей SRS $\T'$:
+
+    \begin{flushleft}
+    \begin{multicols}{4}
+    $br      \to ab$\\
+    $raa     \to dr$\\
+    $ara     \to ad$\\
+    $aad     \to da$\\
+    $abdar   \to dd$\\
+    $abdad   \to dda$\\
+    $ddar    \to ddaa$\\
+    $adbdar  \to ardd$\\
+    $arda    \to adad$\\
+    $adra    \to add$\\
+    $adr     \to ada$\\
+    $drbdar  \to radd$\\
+    $rda     \to drd$\\
+    $rada    \to drad$\\
+    $drra    \to drd$\\
+    $abaa    \to bdr$\\
+    $adrad   \to adda$\\
+    $addrad  \to addaa$\\
+    $adddrad \to addaaa$\\
+    \end{multicols}
+    \end{flushleft}
+
+    \subsection{Инварианты}
+
+    Исходная SRS $\T$ (после изменения порядка):
+
+    \begin{gather*}
+    br    \to ab\\
+    raa   \to dr\\
+    ara   \to ad\\
+    aad   \to da\\
+    abdar \to dd
+    \end{gather*}
+
+    Итоговая SRS $\T'$:
+
+    \begin{flushleft}
+    \begin{multicols}{4}
+    $br      \to ab$\\
+    $raa     \to dr$\\
+    $ara     \to ad$\\
+    $aad     \to da$\\
+    $abdar   \to dd$\\
+    $abdad   \to dda$\\
+    $ddar    \to ddaa$\\
+    $adbdar  \to ardd$\\
+    $arda    \to adad$\\
+    $adra    \to add$\\
+    $adr     \to ada$\\
+    $drbdar  \to radd$\\
+    $rda     \to drd$\\
+    $rada    \to drad$\\
+    $drra    \to drd$\\
+    $abaa    \to bdr$\\
+    $adrad   \to adda$\\
+    $addrad  \to addaa$\\
+    $adddrad \to addaaa$\\
+    \end{multicols}
+    \end{flushleft}
+
+
+    \textbf{Инварианты}:
+    \begin{enumerate}
+        \itemsep -0.8pt 
+        \item Количество букв $b$ не возрастает.
+        \item Количество букв $r$ не возрастает.
+        \item Количество букв $d$ не убывает.
+        \item Если слово заканчивается на букву $b$, то после любой последовательности преобразований, оно будет заканчиваться на $b$.
+        \item Если слово начинается на букву $d$, то после любой последовательности преобразований, оно будет начинаться на $d$.
+    \end{enumerate}
+    
+\end{document}
+

@@ -5,6 +5,7 @@
 # Git configuration
 !*.gitignore
 !*.gitkeep
+!*.gitattributes
 
 # Dependencies
 !*.nix
@@ -67,3 +68,8 @@
 
 # DB files
 !*.sql
+
+# TFL files
+!*.typ
+!*.erl
+!*.hs
