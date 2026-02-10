@@ -73,3 +73,6 @@
 !*.typ
 !*.erl
 !*.hs
+
+# Compiler files
+!*.diff

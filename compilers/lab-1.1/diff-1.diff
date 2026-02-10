@@ -1,0 +1,14 @@
+--- pcom1.pas	2026-02-10 16:52:18.622622005 +0300
++++ pcom2.pas	2026-02-10 16:52:49.494434085 +0300
+@@ -1344,9 +1344,8 @@
+       letter:
+         begin k := 0; ferr := true;
+           repeat
+-            if k < maxids then
+-             begin k := k + 1; id[k] := ch end
+-            else if ferr then begin error(182); ferr := false end;
++            if k < 10 then
++             begin k := k + 1; id[k] := ch end;
+             nextch
+           until chartp[ch] in [special,illegal,chstrquo,chcolon,
+                                 chperiod,chlt,chgt,chlparen,chspace,chlcmt];

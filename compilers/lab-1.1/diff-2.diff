@@ -1,0 +1,50 @@
+--- pcom2.pas	2026-02-10 17:21:48.510194278 +0300
++++ pcom.pas	2026-02-10 17:18:55.220589733 +0300
+@@ -2059,16 +2059,16 @@
+     function filecomponent(fsp: stp): boolean;
+     var f: boolean;
+       { tour identifier tree }
+-      function filecomponentre(lcp: ctp): boolean;
++      function refilecomponent(lcp: ctp): boolean;
+       var f: boolean;
+       begin
+         f := false; { set not file by default }
+         if lcp <> nil then with lcp^ do begin
+           if filecomponent(idtype) then f := true;
+-          if filecomponentre(llink) then f := true;
+-          if filecomponentre(rlink) then f := true
++          if refilecomponent(llink) then f := true;
++          if refilecomponent(rlink) then f := true
+         end;
+-        filecomponentre := f
++        refilecomponent := f
+       end;
+     begin
+       f := false; { set not a file by default }
+@@ -2078,7 +2078,7 @@
+         pointer:  ;
+         power:    ;
+         arrays:   if filecomponent(aeltype) then f := true; 
+-        records:  if filecomponentre(fstfld) then f := true;
++        records:  if refilecomponent(fstfld) then f := true;
+         files:    f := true;
+         tagfld:   ;
+         variant:  ;
+@@ -3431,7 +3431,7 @@
+             selector(fsys,lcp)
+           end (*variable*) ;
+ 
+-          procedure getputresetrewriteprocedure;
++          procedure procgetputresetrewriteprocedure;
+           begin variable(fsys + [rparent]); loadaddress;
+             if gattr.typtr <> nil then
+               if gattr.typtr^.form <> files then error(116);
+@@ -4013,7 +4013,7 @@
+                     if sy = lparent then insymbol else error(9);
+                   case lkey of
+                     1,2,
+-                    3,4:   getputresetrewriteprocedure;
++                    3,4:   procgetputresetrewriteprocedure;
+                     17:    pageprocedure;
+                     5,11:  readprocedure;
+                     6,12:  writeprocedure;
