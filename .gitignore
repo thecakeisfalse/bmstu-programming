@@ -76,3 +76,6 @@
 
 # Compiler files
 !*.diff
+
+# OFP
+!*.scala
