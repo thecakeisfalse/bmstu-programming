@@ -3,6 +3,7 @@ with pkgs;
   mkShell {
     buildInputs = [
       scala
+      metals
 
       bashInteractive
     ];
