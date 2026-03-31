@@ -1,0 +1,7 @@
+all INPUT:
+    flex main.l
+    gcc lex.yy.c -o lexer -lfl
+    ./lexer {{INPUT}}
+
+clean:
+    rm lex.yy.c lexer

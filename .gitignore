@@ -9,6 +9,7 @@
 
 # Dependencies
 !*.nix
+!*.lock
 !.envrc
 
 # Reports
@@ -76,6 +77,10 @@
 
 # Compiler files
 !*.diff
+!*.l
 
 # OFP
 !*.scala
+
+# OCG
+!justfile
