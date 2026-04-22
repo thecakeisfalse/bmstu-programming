@@ -9,7 +9,7 @@
 
 # Dependencies
 !*.nix
-!*.lock
+!flake.lock
 !.envrc
 
 # Reports
@@ -84,3 +84,4 @@
 
 # OCG
 !justfile
+!*.hpp
