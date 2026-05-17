@@ -1,0 +1,7 @@
+all: gen example
+compiler:
+    clang++ $(llvm-config --cflags --libs all) compiler.cc -o compiler
+gen: compiler
+    ./compiler 2> out.ll
+example:
+    clang -S -emit-llvm example -o example.ll

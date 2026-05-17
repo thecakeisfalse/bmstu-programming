@@ -1,0 +1,9 @@
+all: compile run
+
+compile:
+    g++ compiler.cc -o compiler -std=c++23 $(llvm-config --cflags --libs)
+
+run:
+    ./compiler example.c 2> main.ll
+    llc main.ll
+    clang main.s -o main
