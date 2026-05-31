@@ -17,6 +17,12 @@ in
       libgcc
       gmp
 
+      rustc
+      cargo
+      rustfmt
+      rust-analyzer
+      clippy
+
       bashInteractive
     ];
 

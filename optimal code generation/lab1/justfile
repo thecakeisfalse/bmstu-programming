@@ -6,7 +6,7 @@ plugin:
     g++ -std=c++17 -shared -fPIC -fno-rtti -o plugin.so plugin.cc -I{{plugin_inc}}
 
 run: plugin
-    gcc -fplugin=./plugin.so main.c -O0 -o /dev/null
+    gcc -fplugin=./plugin.so example.c -O0 -o /dev/null
     
 run2: plugin
-    gcc -fplugin=./plugin.so main2.c -O0 -o /dev/null
+    gcc -fplugin=./plugin.so example2.c -O0 -o /dev/null
