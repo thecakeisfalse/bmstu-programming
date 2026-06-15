@@ -1,0 +1,8 @@
+all:
+    cargo run --bin gen -- 1.txt
+    cp src/generated_table.rs src/generated_table1.rs
+    cargo run --bin gen --features generated_table -- 1.txt
+    diff src/generated_table.rs src/generated_table1.rs
+    rm src/generated_table1.rs
+    cargo run --bin gen --features generated_table -- 2.txt
+    cargo run --bin calc

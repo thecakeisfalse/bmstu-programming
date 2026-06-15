@@ -1,0 +1,21 @@
+[package]
+name = "lab"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+regex = "1.12.3"
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "gen"
+path = "src/main.rs"
+
+[[bin]]
+name = "calc"
+path = "src/calculator.rs"
+
+[features]
+generated_table = []
